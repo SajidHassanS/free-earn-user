@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const baseURL = "http://192.168.200.46:7000/api";
+export const baseURL = "http://13.61.146.137/api";
 
 export const createAccount = async (data: createAccountPayload) => {
   try {
