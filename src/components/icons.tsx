@@ -36,6 +36,7 @@ import {
   Mails,
   Mail,
   PanelTopOpen,
+  MessageCircleMore,
 } from "lucide-react";
 
 export type Icon = LucideIcon;
@@ -74,6 +75,7 @@ export const Icons = {
   duplicateEmail: Mails,
   mail: Mail,
   PanelTopOpen: PanelTopOpen,
+  chat: MessageCircleMore,
   gitHub: ({ ...props }: LucideProps) => (
     <svg
       aria-hidden="true"

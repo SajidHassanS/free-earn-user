@@ -30,6 +30,14 @@ export const navItems = [
     items: [],
   },
   {
+    title: "Chat",
+    url: "/dashboard/chat",
+    icon: "chat",
+    isActive: false,
+    shortcut: ["ch", "ch"],
+    items: [],
+  },
+  {
     title: "Notifications",
     url: "/dashboard/notifications",
     icon: "notification",
