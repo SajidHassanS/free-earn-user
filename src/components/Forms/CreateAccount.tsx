@@ -41,7 +41,6 @@ export function CreateAccountForm({
     resolver: zodResolver(createAccountFormSchema),
     defaultValues: {
       username: "",
-      organization: "",
       phone: "",
       referCode: "",
       password: "",
@@ -109,29 +108,6 @@ export function CreateAccountForm({
                                 placeholder="Enter whatsapp number"
                                 defaultCountry="PK"
                                 className="focus:border-none"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </LabelInputContainer>
-                  </div>
-                  <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-1">
-                    <LabelInputContainer>
-                      <Label htmlFor="organization">Organization</Label>
-                      <FormField
-                        control={form.control}
-                        name="organization"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input
-                                placeholder="Enter organiztion name"
-                                type="text"
-                                id="organization"
-                                className="outline-none focus:border-primary"
                                 {...field}
                               />
                             </FormControl>

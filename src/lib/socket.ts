@@ -4,7 +4,7 @@ let socket: Socket | null = null;
 
 export const getSocket = (token: string): Socket => {
   if (!socket) {
-    socket = io("https://b3a0-37-111-135-234.ngrok-free.app", {
+    socket = io("http://192.168.200.46:7001", {
       query: { token },
       transports: ["websocket"],
     });

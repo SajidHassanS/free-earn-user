@@ -1,16 +1,16 @@
 "use client";
 
 import { useContextConsumer } from "@/context/Context";
+import {
+  useAdminMessagesHistory,
+  useGetAdminsList,
+  useMarkAsReadMessage,
+} from "@/hooks/apis/useChat";
 import { useChatSocket } from "@/hooks/useChatSocket";
 import { useEffect, useRef, useState } from "react";
 import { SkeletonCard } from "@/components/Loaders/SkeletonLoader";
 import { cn } from "@/lib/utils";
 import { SendHorizonal } from "lucide-react";
-import {
-  useGetAdminsList,
-  useAdminMessagesHistory,
-  useGetUnreadMessageCount,
-} from "@/hooks/apis/useChat";
 
 export default function ChatBox() {
   const { token } = useContextConsumer();
@@ -18,15 +18,25 @@ export default function ChatBox() {
   const [input, setInput] = useState("");
   const messageEndRef = useRef<HTMLDivElement>(null);
 
-  const { data: usersList, isLoading: usersLoading } = useGetAdminsList(token);
-  const { data: messagesHistory, isLoading: historyLoading } =
-    useAdminMessagesHistory(selectedUserUuid, token);
-  const { data: unreadCountData } = useGetUnreadMessageCount(
-    selectedUserUuid,
-    token
-  );
+  const { data: adminList, isLoading: adminLoading } = useGetAdminsList(token);
+  const {
+    data: messagesHistory,
+    isLoading: historyLoading,
+    refetch,
+  } = useAdminMessagesHistory(selectedUserUuid, token);
+  const { mutate: markAllMessageRead } = useMarkAsReadMessage();
 
-  const { messages, sendMessage } = useChatSocket();
+  const { adminMessages, sendMessage, connectSocket, subscribeToMessages } =
+    useChatSocket();
+
+  const handleAdminSelect = (uuid: string) => {
+    setSelectedUserUuid(uuid);
+    const payload = {
+      data: { uuid },
+      token,
+    };
+    markAllMessageRead(payload);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,37 +47,45 @@ export default function ChatBox() {
   };
 
   useEffect(() => {
+    connectSocket(token);
+    subscribeToMessages((msg: any) => {
+      if (msg.senderType === "user" && msg.senderUuid === selectedUserUuid) {
+        refetch();
+      }
+    });
+  }, [token, selectedUserUuid, connectSocket, refetch, subscribeToMessages]);
+
+  useEffect(() => {
     if (messageEndRef.current) {
       messageEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messagesHistory, messages]);
+  }, [messagesHistory, adminMessages, selectedUserUuid]);
 
   return (
     <div className="flex border rounded-lg h-[80vh] w-full max-w-6xl overflow-hidden shadow-sm">
       {/* User List */}
-      <div className="w-1/3 border-r p-4 bg-zinc-50 dark:bg-zinc-800 overflow-y-auto">
-        <h2 className="text-lg font-semibold mb-4 text-primary">Users</h2>
-        {usersLoading ? (
+      <div className="w-1/4 border-r p-4 bg-zinc-50 dark:bg-zinc-800 overflow-y-auto">
+        <h2 className="text-lg font-semibold mb-4 text-primary">Admins</h2>
+        {adminLoading ? (
           <SkeletonCard className="w-full h-10 mb-2" />
         ) : (
           <ul className="space-y-2">
-            {usersList?.data?.map((user: any) => (
+            {adminList?.data?.map((admin: any) => (
               <li
-                key={user.uuid}
-                onClick={() => setSelectedUserUuid(user.uuid)}
+                key={admin.uuid}
+                onClick={() => handleAdminSelect(admin.uuid)}
                 className={cn(
                   "cursor-pointer px-3 py-2 rounded-md hover:bg-primary/10 flex items-center justify-between",
-                  selectedUserUuid === user.uuid &&
+                  selectedUserUuid === admin.uuid &&
                     "bg-primary text-white dark:text-white"
                 )}
               >
-                <span>{user.username}</span>
-                {unreadCountData?.data?.count > 0 &&
-                  selectedUserUuid !== user.uuid && (
-                    <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
-                      {unreadCountData.data.count}
-                    </span>
-                  )}
+                <span>{admin.username}</span>
+                {admin.unreadCount > 0 && selectedUserUuid !== admin.uuid && (
+                  <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                    {admin.unreadCount}
+                  </span>
+                )}
               </li>
             ))}
           </ul>
@@ -80,28 +98,35 @@ export default function ChatBox() {
           {historyLoading ? (
             <SkeletonCard className="w-full h-40" />
           ) : (
-            messagesHistory?.data?.messages?.map((msg: any, idx: number) => (
-              <div
-                key={msg.uuid || idx}
-                className={cn(
-                  "max-w-[80%] p-3 rounded-xl text-sm break-words",
-                  msg.senderUsername === "Admin"
-                    ? "ml-auto bg-blue-500 text-white"
-                    : "mr-auto bg-gray-200 text-gray-900"
-                )}
-              >
-                {msg.content}
-              </div>
-            ))
+            <>
+              {messagesHistory?.data?.messages?.map((msg: any, idx: number) => (
+                <div
+                  key={msg.uuid || idx}
+                  className={cn(
+                    "max-w-[80%] p-3 rounded-xl text-sm break-words",
+                    msg.senderUsername === "User"
+                      ? "ml-auto bg-blue-500 text-white"
+                      : "mr-auto bg-gray-200 text-gray-900"
+                  )}
+                >
+                  {msg.content}
+                </div>
+              ))}
+              {(adminMessages[selectedUserUuid] || []).map((msg, idx) => (
+                <div
+                  key={`socket-msg-${idx}`}
+                  className={cn(
+                    "max-w-[80%] p-3 rounded-xl text-sm break-words",
+                    msg.senderType === "user"
+                      ? "ml-auto bg-blue-500 text-white"
+                      : "mr-auto bg-gray-200 text-gray-900"
+                  )}
+                >
+                  {msg.content}
+                </div>
+              ))}
+            </>
           )}
-          {messages.map((msg, idx) => (
-            <div
-              key={`realtime-${idx}`}
-              className="max-w-[80%] ml-auto bg-blue-500 text-white p-3 rounded-xl text-sm break-words"
-            >
-              {msg}
-            </div>
-          ))}
           <div ref={messageEndRef} />
         </div>
 

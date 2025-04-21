@@ -1,7 +1,9 @@
 import axios from "axios";
 
-// export const baseURL = "http://192.168.200.46:7000/api";
-export const baseURL = "https://3m7tnj2hx9.execute-api.eu-north-1.amazonaws.com/production/api/";
+export const baseURL =
+  "https://3m7tnj2hx9.execute-api.eu-north-1.amazonaws.com/production/api";
+// export const baseURL =
+//   "https://fd59-2402-e000-429-7336-d03f-f6dd-418d-4fe7.ngrok-free.app/api";
 
 export const createAccount = async (data: createAccountPayload) => {
   try {
@@ -44,6 +46,7 @@ export const getUserProfile = async (token: string) => {
     const res = await axios.get(`${baseURL}/user/profile`, {
       headers: {
         Authorization: `Bearer ${token}`,
+        "ngrok-skip-browser-warning": "true",
       },
     });
     return res.data;
@@ -64,5 +67,33 @@ export const updateUserProfile = async (data: any, token: string) => {
     return res.data;
   } catch (error) {
     throw error;
+  }
+};
+
+export const bulkPhone = async (data: any, token: string) => {
+  try {
+    const res = await axios.post(`${baseURL}/user/profile/phone`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res.data;
+  } catch (error) {
+    return error;
+  }
+};
+
+// get  profile
+export const getUserPhonesNo = async (token: string) => {
+  try {
+    const res = await axios.get(`${baseURL}/user/profile/phone`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "ngrok-skip-browser-warning": "true",
+      },
+    });
+    return res.data;
+  } catch (error) {
+    return error;
   }
 };

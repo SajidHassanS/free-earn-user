@@ -4,13 +4,26 @@ import { Socket } from "socket.io-client";
 
 type MessagePayload = {
   content: string;
-  senderType: "user";
+  senderType: "admin" | "user";
   receiverUuid: string;
   isNotification: boolean;
 };
+
+type ReceivedMessage = {
+  senderType: string;
+  receiverUuid: string;
+  content: string;
+  [key: string]: any;
+};
+
+type MessageCallback = (msg: ReceivedMessage) => void;
+
 export const useChatSocket = () => {
-  const [messages, setMessages] = useState<string[]>([]);
   const socketRef = useRef<Socket | null>(null);
+  const [adminMessages, setUserMessages] = useState<{
+    [uuid: string]: ReceivedMessage[];
+  }>({});
+  const messageCallbackRef = useRef<MessageCallback | null>(null);
 
   const connectSocket = (token: string) => {
     if (!socketRef.current) {
@@ -18,18 +31,33 @@ export const useChatSocket = () => {
       socketRef.current = socket;
 
       socket.on("connect", () => {
-        console.log("Connected to socket:", socket.id);
+        console.log("✅ Connected to socket:", socket.id);
       });
 
-      socket.on("receiveMessage", (msg: any) => {
-        console.log("Message received:", msg);
-        setMessages((prev) => [...prev, `${msg.senderType}: ${msg.content}`]);
+      socket.on("receiveMessage", (msg: ReceivedMessage) => {
+        console.log("📥 Received message:", msg);
+        setUserMessages((prev) => {
+          const updated = { ...prev };
+          if (!updated[msg.receiverUuid]) {
+            updated[msg.receiverUuid] = [];
+          }
+          updated[msg.receiverUuid].push(msg);
+          return updated;
+        });
+
+        if (messageCallbackRef.current) {
+          messageCallbackRef.current(msg);
+        }
       });
 
       socket.on("disconnect", () => {
-        console.log("Disconnected from socket");
+        console.log("❌ Disconnected from socket");
       });
     }
+  };
+
+  const subscribeToMessages = (cb: MessageCallback) => {
+    messageCallbackRef.current = cb;
   };
 
   const sendMessage = (
@@ -50,8 +78,16 @@ export const useChatSocket = () => {
 
     console.log("📤 Sending message:", payload);
     socketRef.current?.emit("sendMessage", payload);
-    setMessages((prev) => [...prev, `${content}`]);
+
+    setUserMessages((prev) => {
+      const updated = { ...prev };
+      if (!updated[receiverUuid]) {
+        updated[receiverUuid] = [];
+      }
+      updated[receiverUuid].push(payload);
+      return updated;
+    });
   };
 
-  return { messages, sendMessage, connectSocket };
+  return { adminMessages, sendMessage, connectSocket, subscribeToMessages };
 };

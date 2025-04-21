@@ -8,12 +8,7 @@ const createAccountFormSchema = z
     phone: z.string().nonempty({
       message: "Enter phone number.",
     }),
-    organization: z.string().nonempty({
-      message: "Enter organiztion name",
-    }),
-    referCode: z.string().nonempty({
-      message: "Enter reffer code",
-    }),
+    referCode: z.string().optional(),
     password: z
       .string()
       .nonempty({
@@ -57,9 +52,11 @@ const loginAccountFormSchema = z.object({
 });
 
 const profileFormSchema = z.object({
+  userTitle: z.string().optional(),
   username: z.string().optional(),
   countryCode: z.string().optional(),
   phone: z.string().min(10, "Phone number must be at least 10 digits."),
+  profileImg: z.string().url().nullable().optional(),
 });
 
 const passwordSchema = z
@@ -75,9 +72,23 @@ const passwordSchema = z
     path: ["confirmPassword"],
   });
 
+const addBulkPhoneSchema = z.object({
+  phones: z
+    .array(
+      z
+        .string()
+        .regex(
+          /^\+\d{1,4}\d{10}$/,
+          "Phone must include country code and exactly 10 digits"
+        )
+    )
+    .min(1, "At least one phone number is required"),
+});
+
 export {
   createAccountFormSchema,
   loginAccountFormSchema,
   profileFormSchema,
   passwordSchema,
+  addBulkPhoneSchema,
 };

@@ -30,17 +30,20 @@ export const getMessages = async (uuid: any, token: string) => {
   }
 };
 
-export const getUnreadCount = async (uuid: any, token: string) => {
+export const markAllAsRead = async (data: any, token: string) => {
   try {
-    const res = await axios.get(`${baseURL}/chat/unread-count?uuid=${uuid}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "ngrok-skip-browser-warning": "true",
-      },
-    });
+    const res = await axios.post(
+      `${baseURL}/chat/mark-as-read?uuid=${data.uuid}`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
     return res.data;
   } catch (error) {
-    return error;
+    throw error;
   }
 };
