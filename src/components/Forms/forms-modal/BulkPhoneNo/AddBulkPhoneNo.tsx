@@ -10,7 +10,7 @@ import AddBulkPhoneForm from "./AddBulkPhoneForm";
 const BulkPhoneModal: React.FC<any> = ({ open, onOpenChange }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[80vw] md:max-w-md h-[35vh] overflow-y-auto scrollbar-custom">
+      <DialogContent className="max-w-[80vw] md:max-w-md h-fit overflow-y-auto scrollbar-custom">
         <DialogHeader>
           <DialogTitle className="text-primary text-xl font-bold pt-4">
             Add Bulk Phones No

@@ -92,7 +92,7 @@ const AddBulkPhoneForm = ({ onClose }: { onClose: () => void }) => {
                     <FormControl>
                       <PhoneInput
                         id={`phone_${index}`}
-                        placeholder="Enter no"
+                        placeholder="3********"
                         defaultCountry="PK"
                         className="focus:border-none"
                         {...field}

@@ -105,7 +105,7 @@ export function CreateAccountForm({
                             <FormControl>
                               <PhoneInput
                                 id="phone"
-                                placeholder="Enter whatsapp number"
+                                placeholder="3*********"
                                 defaultCountry="PK"
                                 className="focus:border-none"
                                 {...field}

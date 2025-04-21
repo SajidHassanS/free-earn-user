@@ -171,7 +171,7 @@ export default function UserProfileForm() {
             className="py-2 px-4 ml-2"
             onClick={() => setIsOpenBulkPhoneModal(true)}
           >
-            Add Bulk Phone <Plus size={16} className="ml-1" />
+            Add More Phone <Plus size={16} className="ml-1" />
           </Button>
         </div>
 
