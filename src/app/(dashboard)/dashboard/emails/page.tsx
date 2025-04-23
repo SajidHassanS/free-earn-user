@@ -65,10 +65,6 @@ const Emails = () => {
         ),
       },
       {
-        Header: "Remarks",
-        accessor: "remarks",
-      },
-      {
         Header: "Uploaded At",
         accessor: "createdAt",
         Cell: ({ row }: any) =>

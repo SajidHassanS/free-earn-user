@@ -84,9 +84,6 @@ export default function UserProfileForm() {
   const { data: phonesNo, isLoading: loadingPhonesno } =
     useGetUSerPhonesNo(token);
 
-  // work on...
-  // useBulkPhones;
-
   const profileForm = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
@@ -144,11 +141,10 @@ export default function UserProfileForm() {
 
   const profileImgValue = profileForm.watch("profileImg");
 
-  // Ensure it's not null or empty
   const formattedImageSrc =
     profileImgValue && typeof profileImgValue === "string"
       ? `${baseURL.replace("/api", "")}${profileImgValue}`
-      : ""; // This prevents "undefined" or "null" in the URL
+      : "";
 
   return isLoading ? (
     <APIResponseLoader className="h-60 w-full col-span-3" />
@@ -235,7 +231,7 @@ export default function UserProfileForm() {
                         id="phone"
                         placeholder="Enter your phone number"
                         defaultCountry="PK"
-                        disabled={!isEditable}
+                        disabled
                         {...field}
                       />
                     </FormControl>
@@ -245,13 +241,13 @@ export default function UserProfileForm() {
               />
             </LabelInputContainer>
 
-            {isEditable && (
+            {/* {isEditable && (
               <div className="flex justify-end items-end">
                 <Button type="submit">
                   {updating ? "Updating..." : "Update Profile"}
                 </Button>
               </div>
-            )}
+            )} */}
           </form>
         </Form>
 

@@ -57,13 +57,17 @@ export const getAllWithdrawlsBonusHistory = async (token: string) => {
   }
 };
 
-export const withdrawRequest = async (token: string) => {
+export const withdrawRequest = async (method: string, token: string) => {
   try {
-    const res = await axios.post(`${baseURL}/withdrawal/request`, "", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const res = await axios.post(
+      `${baseURL}/withdrawal/request`,
+      { method },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return res.data;
   } catch (error) {
     return error;

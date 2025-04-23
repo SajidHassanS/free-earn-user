@@ -8,17 +8,20 @@ import {
   useGetWithdrawlHistory,
   useGetWithdrawls,
   useGetWithdrawlsBonus,
-  useWithdrawRequest,
 } from "@/hooks/apis/useWithdrawls";
 import { SkeletonCard } from "@/components/Loaders/SkeletonLoader";
 import { Button } from "@/components/ui/button";
 import { Banknote, Gift } from "lucide-react";
 import DataTable from "@/components/Table/DataTable";
 import { format } from "date-fns";
+import { useState } from "react";
+import DisplayMethodsModal from "@/components/Forms/forms-modal/withdrawal-methods/DisplayMethods";
 
 const Withdrawals = () => {
   const { token } = useContextConsumer();
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
+  //
   const { data, isLoading } = useGetWithdrawls(token);
   const { data: bonusData, isLoading: bonusDataLoading } =
     useGetWithdrawlsBonus(token);
@@ -26,8 +29,7 @@ const Withdrawals = () => {
     useGetWithdrawlHistory(token);
   const { data: withdrawlBonusHistory, isLoading: bonusHistoryDataLoading } =
     useGetWithdrawlBonusHistory(token);
-  const { mutate: withdrawRequest, isPending: requesting } =
-    useWithdrawRequest();
+
   const { mutate: bonusWithdrawRequest, isPending: bonusRequesting } =
     useBonusWithdrawRequest();
 
@@ -36,10 +38,6 @@ const Withdrawals = () => {
   const referralBonus = bonusData?.data?.referral || 0;
   const history = withdrawlHistory?.data || [];
   const bonusHistory = withdrawlBonusHistory?.data || [];
-
-  const handleRequest = () => {
-    withdrawRequest({ token });
-  };
 
   const handleBonusWithdraw = (bonusType: "signup" | "referral") => {
     bonusWithdrawRequest({ token, bonusType });
@@ -114,8 +112,7 @@ const Withdrawals = () => {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={handleRequest}
-                disabled={requesting}
+                onClick={() => setIsModalOpen(true)}
               >
                 Withdraw
               </Button>
@@ -226,6 +223,7 @@ const Withdrawals = () => {
           )}
         </div>
       </div>
+      <DisplayMethodsModal open={isModalOpen} onOpenChange={setIsModalOpen} />
     </>
   );
 };

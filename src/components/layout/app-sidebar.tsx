@@ -28,6 +28,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   SidebarRail,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import {
   ChevronRight,
@@ -42,9 +43,8 @@ import * as React from "react";
 import { navItems } from "@/constant/data";
 import { Icons } from "../icons";
 import Image from "next/image";
-import { useGetUSerProfile } from "@/hooks/apis/useUserAuth";
-import { useContextConsumer } from "@/context/Context";
 import { useAuth } from "@/hooks/useAuth";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const company = {
   name: "FreeEarn Dashboard",
@@ -56,8 +56,8 @@ export default function AppSidebar() {
   const { data: session } = useSession();
   const pathname = usePathname();
   const { logout } = useAuth();
-  const { token } = useContextConsumer();
-  const { data } = useGetUSerProfile(token);
+  const { toggleSidebar } = useSidebar();
+  const isMobile = useIsMobile();
 
   return (
     <Sidebar collapsible="icon">
@@ -133,7 +133,12 @@ export default function AppSidebar() {
                     tooltip={item.title}
                     isActive={pathname === item.url}
                   >
-                    <Link href={item.url}>
+                    <Link
+                      href={item.url}
+                      onClick={() => {
+                        if (isMobile) toggleSidebar();
+                      }}
+                    >
                       <Icon />
                       <span>{item.title}</span>
                     </Link>
