@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -33,6 +33,15 @@ const UploadScreenshotModal: React.FC<any> = ({ open, onOpenChange }) => {
     uploadScreenshot({ data: formData, token });
     onOpenChange(false);
   };
+
+  useEffect(() => {
+    if (!open) {
+      setSelectedFile(null);
+      setPreviewUrl(null);
+    }
+  }, [open]);
+
+  //
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[80vw] md:max-w-md h-auto overflow-y-auto scrollbar-custom space-y-4">
@@ -41,10 +50,8 @@ const UploadScreenshotModal: React.FC<any> = ({ open, onOpenChange }) => {
             Upload Screenshot
           </DialogTitle>
         </DialogHeader>
-
         <div className="space-y-4">
           <Input type="file" accept="image/*" onChange={handleFileChange} />
-
           {previewUrl && (
             <div className="rounded-md border p-2 w-full max-h-64 overflow-hidden">
               <img
@@ -54,7 +61,6 @@ const UploadScreenshotModal: React.FC<any> = ({ open, onOpenChange }) => {
               />
             </div>
           )}
-
           <Button
             onClick={handleUpload}
             disabled={!selectedFile || isPending}
