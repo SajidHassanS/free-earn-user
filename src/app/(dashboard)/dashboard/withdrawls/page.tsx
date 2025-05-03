@@ -20,6 +20,9 @@ import DisplayMethodsModal from "@/components/Forms/forms-modal/withdrawal-metho
 const Withdrawals = () => {
   const { token } = useContextConsumer();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [withdrawType, setWithdrawType] = useState<
+    "balance" | "signup" | "referral"
+  >("balance");
 
   //
   const { data, isLoading } = useGetWithdrawls(token);
@@ -30,18 +33,11 @@ const Withdrawals = () => {
   const { data: withdrawlBonusHistory, isLoading: bonusHistoryDataLoading } =
     useGetWithdrawlBonusHistory(token);
 
-  const { mutate: bonusWithdrawRequest, isPending: bonusRequesting } =
-    useBonusWithdrawRequest();
-
   const balance = data?.data?.balance || 0;
   const signupBonus = bonusData?.data?.signup || 0;
   const referralBonus = bonusData?.data?.referral || 0;
   const history = withdrawlHistory?.data || [];
   const bonusHistory = withdrawlBonusHistory?.data || [];
-
-  const handleBonusWithdraw = (bonusType: "signup" | "referral") => {
-    bonusWithdrawRequest({ token, bonusType });
-  };
 
   const columns = [
     {
@@ -112,7 +108,10 @@ const Withdrawals = () => {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => {
+                  setWithdrawType("balance");
+                  setIsModalOpen(true);
+                }}
               >
                 Withdraw
               </Button>
@@ -155,8 +154,11 @@ const Withdrawals = () => {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => handleBonusWithdraw("signup")}
-                    disabled={bonusRequesting}
+                    onClick={() => {
+                      setWithdrawType("signup");
+                      setIsModalOpen(true);
+                    }}
+                    disabled={signupBonus <= 0}
                   >
                     Withdraw
                   </Button>
@@ -174,8 +176,11 @@ const Withdrawals = () => {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => handleBonusWithdraw("referral")}
-                    disabled={bonusRequesting}
+                    onClick={() => {
+                      setWithdrawType("referral");
+                      setIsModalOpen(true);
+                    }}
+                    disabled={referralBonus <= 0}
                   >
                     Withdraw
                   </Button>
@@ -223,7 +228,11 @@ const Withdrawals = () => {
           )}
         </div>
       </div>
-      <DisplayMethodsModal open={isModalOpen} onOpenChange={setIsModalOpen} />
+      <DisplayMethodsModal
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        withdrawType={withdrawType}
+      />
     </>
   );
 };

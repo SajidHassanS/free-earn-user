@@ -101,10 +101,9 @@ export const useWithdrawRequest = () => {
         toast.success(data.message);
         queryClient.invalidateQueries(["withdrawals", variables.token] as any);
       } else {
-        toast.error(data?.message);
+        toast.error(data?.response?.data?.message || data?.message);
       }
     },
-
     onError: (error: any) => {
       toast.error(error?.response?.data?.message || error?.message);
     },
@@ -114,9 +113,19 @@ export const useWithdrawRequest = () => {
 export const useBonusWithdrawRequest = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ token, bonusType }: { token: string; bonusType: string }) =>
-      bonusWithdrawRequest(token, bonusType),
-    onSuccess: (data: any, variables: { token: string; bonusType: string }) => {
+    mutationFn: ({
+      token,
+      bonusType,
+      method,
+    }: {
+      token: string;
+      bonusType: string;
+      method: string;
+    }) => bonusWithdrawRequest(token, bonusType, method),
+    onSuccess: (
+      data: any,
+      variables: { token: string; bonusType: string; method: string }
+    ) => {
       if (data?.success) {
         toast.success(data.message);
         queryClient.invalidateQueries([
@@ -124,7 +133,7 @@ export const useBonusWithdrawRequest = () => {
           variables.token,
         ] as any);
       } else {
-        toast.error(data?.message);
+        toast.error(data?.response?.data?.message || data?.message);
       }
     },
     onError: (error: any) => {

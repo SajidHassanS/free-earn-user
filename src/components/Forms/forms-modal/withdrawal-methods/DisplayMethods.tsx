@@ -8,28 +8,49 @@ import {
 import { useContextConsumer } from "@/context/Context";
 import { useGetWithdrawalMethods } from "@/hooks/apis/useWithdrawalMethods";
 import { Button } from "@/components/ui/button";
-import { useWithdrawRequest } from "@/hooks/apis/useWithdrawls";
+import {
+  useBonusWithdrawRequest,
+  useWithdrawRequest,
+} from "@/hooks/apis/useWithdrawls";
 import { cn } from "@/lib/utils";
 import { Toaster } from "react-hot-toast";
 
-const DisplayMethodsModal: React.FC<any> = ({ open, onOpenChange }) => {
+const DisplayMethodsModal: React.FC<{
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  withdrawType: "balance" | "signup" | "referral";
+}> = ({ open, onOpenChange, withdrawType }) => {
   const { token } = useContextConsumer();
   const [selectedMethod, setSelectedMethod] = React.useState<string>("");
 
   const { data: withdrawalMethods } = useGetWithdrawalMethods(token);
   const { mutate: withdrawRequest, isPending: requesting } =
     useWithdrawRequest();
+  const { mutate: bonusWithdrawRequest, isPending: bonusRequesting } =
+    useBonusWithdrawRequest();
 
   const handleRequest = () => {
     if (!selectedMethod) return;
-    withdrawRequest(
-      { method: selectedMethod, token },
-      {
-        onSuccess: (res) => {
-          if (res?.success) onOpenChange();
-        },
-      }
-    );
+
+    if (withdrawType === "balance") {
+      withdrawRequest(
+        { method: selectedMethod, token },
+        {
+          onSuccess: (res) => {
+            if (res?.success) onOpenChange(false);
+          },
+        }
+      );
+    } else {
+      bonusWithdrawRequest(
+        { token, bonusType: withdrawType, method: selectedMethod },
+        {
+          onSuccess: (res) => {
+            if (res?.success) onOpenChange(false);
+          },
+        }
+      );
+    }
   };
 
   return (
@@ -78,7 +99,9 @@ const DisplayMethodsModal: React.FC<any> = ({ open, onOpenChange }) => {
             variant="outline"
             onClick={handleRequest}
             disabled={
-              requesting ||
+              (withdrawType === "balance" && requesting) ||
+              ((withdrawType === "signup" || withdrawType === "referral") &&
+                bonusRequesting) ||
               !selectedMethod ||
               withdrawalMethods?.data?.length === 0
             }

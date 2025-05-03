@@ -76,12 +76,13 @@ export const withdrawRequest = async (method: string, token: string) => {
 
 export const bonusWithdrawRequest = async (
   token: string,
-  bonusType: string
+  bonusType: string,
+  method: string
 ) => {
   try {
     const res = await axios.post(
       `${baseURL}/withdrawal/bonus`,
-      { bonusType },
+      { bonusType, method },
       {
         headers: {
           Authorization: `Bearer ${token}`,
