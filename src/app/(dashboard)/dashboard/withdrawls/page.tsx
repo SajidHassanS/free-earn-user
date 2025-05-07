@@ -34,8 +34,8 @@ const Withdrawals = () => {
     useGetWithdrawlBonusHistory(token);
 
   const balance = data?.data?.balance || 0;
-  const signupBonus = bonusData?.data?.signup || 0;
-  const referralBonus = bonusData?.data?.referral || 0;
+  const signupBonus = bonusData?.data?.signup || {};
+  const referralBonus = bonusData?.data?.referral || {};
   const history = withdrawlHistory?.data || [];
   const bonusHistory = withdrawlBonusHistory?.data || [];
 
@@ -67,11 +67,11 @@ const Withdrawals = () => {
   const bonusColumns = [
     {
       Header: "Amount",
-      accessor: "bonus.amount",
+      accessor: "amount",
     },
     {
       Header: "Bonus Type",
-      accessor: "bonus.type",
+      accessor: "withdrawalType",
     },
     {
       Header: "Status",
@@ -144,12 +144,28 @@ const Withdrawals = () => {
               <div className="space-y-4">
                 <div className="flex items-center justify-between border rounded-lg px-4 py-3 bg-muted dark:bg-zinc-800">
                   <div>
-                    <p className="text-sm text-muted-foreground mb-1">
+                    <p className="text-md font-bold text-muted-foreground mb-1">
                       Signup Bonus
                     </p>
-                    <p className="text-xl font-bold text-primary">
-                      {signupBonus} PKR
-                    </p>
+                    {signupBonus.locked > 0 ? (
+                      <>
+                        <p className="text-sm text-muted-foreground mb-1">
+                          Your signup bonus is locked until you complete your
+                          first email withdrawal.
+                        </p>
+                        <p className="text-sm font-medium text-primary">
+                          Bonus: {signupBonus.locked} PKR
+                        </p>
+                      </>
+                    ) : (
+                      <p className="text-sm font-medium text-primary">
+                        Bonus: {signupBonus.unlocked} PKR
+                      </p>
+                    )}
+
+                    {/* <p className="text-sm font-medium text-primary">
+                      Total: {signupBonus.total} PKR
+                    </p> */}
                   </div>
                   <Button
                     size="sm"
@@ -158,7 +174,7 @@ const Withdrawals = () => {
                       setWithdrawType("signup");
                       setIsModalOpen(true);
                     }}
-                    disabled={signupBonus <= 0}
+                    disabled={signupBonus.unlocked <= 0}
                   >
                     Withdraw
                   </Button>
@@ -166,12 +182,30 @@ const Withdrawals = () => {
 
                 <div className="flex items-center justify-between border rounded-lg px-4 py-3 bg-muted dark:bg-zinc-800">
                   <div>
-                    <p className="text-sm text-muted-foreground mb-1">
+                    <p className="text-md font-bold text-muted-foreground mb-1">
                       Referral Bonus
                     </p>
-                    <p className="text-xl font-bold text-primary">
-                      {referralBonus} PKR
-                    </p>
+                    {referralBonus.total > 0 ? (
+                      <>
+                        {referralBonus.locked > 0 && (
+                          <p className="text-sm text-muted-foreground mb-1">
+                            Your referral bonus is locked until your referee
+                            completes their first withdrawal
+                          </p>
+                        )}
+                        <p className="text-sm font-medium text-primary">
+                          Available: {referralBonus.unlocked} PKR
+                        </p>
+                        <p className="text-sm font-medium text-primary">
+                          Locked: {referralBonus.locked} PKR
+                        </p>
+                        <p className="text-sm font-medium text-primary">
+                          Total: {referralBonus.total} PKR
+                        </p>
+                      </>
+                    ) : (
+                      "No referral bonus."
+                    )}
                   </div>
                   <Button
                     size="sm"
@@ -180,7 +214,7 @@ const Withdrawals = () => {
                       setWithdrawType("referral");
                       setIsModalOpen(true);
                     }}
-                    disabled={referralBonus <= 0}
+                    disabled={referralBonus.unlocked <= 0}
                   >
                     Withdraw
                   </Button>
