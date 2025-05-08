@@ -55,9 +55,7 @@ const Emails = () => {
         Cell: ({ row }: any) => (
           <div className="w-16 h-16">
             <img
-              src={`${baseURL.replace("/api", "")}${
-                row.original.emailScreenshot
-              }`}
+              src={row.original.emailScreenshot}
               alt="Email Screenshot"
               className="object-cover w-full h-full rounded-md border border-gray-200 shadow-sm"
             />
@@ -98,7 +96,7 @@ const Emails = () => {
             <DataTable
               columns={emailColumns}
               data={emails}
-              paginate={emails.length > 10}
+              paginate={emails.length > 100}
             />
           </div>
         )}
