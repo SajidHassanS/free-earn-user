@@ -83,7 +83,7 @@ const DuplicateEmails = () => {
             <DataTable
               columns={duplicateEmailColumns as any}
               data={duplicateEmails}
-              paginate={duplicateEmails.length > 10}
+              paginate={duplicateEmails.length > 100}
             />
           </div>
         )}

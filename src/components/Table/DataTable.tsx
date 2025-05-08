@@ -61,6 +61,7 @@ const DataTable = <T extends object>({
       data: memoizedData,
       initialState: {
         pageIndex: 0,
+        pageSize: paginate ? 100 : data.length,
       } as Partial<TableState<T>>,
     },
     useSortBy,
