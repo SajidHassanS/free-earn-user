@@ -17,7 +17,14 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/table";
-import { ChevronDown, ChevronUp, MoveLeft, MoveRight } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  MoveLeft,
+  MoveRight,
+  Search,
+  X,
+} from "lucide-react";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 
@@ -25,12 +32,15 @@ interface ExtendedColumnInstance<T extends object> extends ColumnInstance<T> {
   isSorted?: boolean;
   isSortedDesc?: boolean;
   getSortByToggleProps?: () => any;
+  disableFilter?: boolean;
 }
 
 interface DataTableProps<T extends object> {
   columns: Array<{
     Header: string;
-    accessor: keyof T;
+    accessor: keyof T | string;
+    disableFilter?: boolean;
+    Cell?: (props: any) => React.ReactNode;
   }>;
   data: T[];
   paginate?: boolean;
@@ -43,13 +53,26 @@ const DataTable = <T extends object>({
   paginate = false,
   extendWidth,
 }: DataTableProps<T>) => {
-  const memoizedColumns = useMemo(() => columns, [columns]);
-  const memoizedData = useMemo(() => data, [data]);
-
+  const [activeFilterCol, setActiveFilterCol] = useState<string | null>(null);
+  const [filters, setFilters] = useState<Record<string, string>>({});
   const [rowsInput, setRowsInput] = useState<string>(
     paginate ? "100" : data.length.toString()
   );
   const [pageSize, setPageSize] = useState<number>(parseInt(rowsInput));
+
+  const filteredData = useMemo(() => {
+    return data.filter((row) => {
+      return Object.entries(filters).every(([key, val]) =>
+        row[key as keyof T]
+          ?.toString()
+          .toLowerCase()
+          .includes(val.toLowerCase())
+      );
+    });
+  }, [data, filters]);
+
+  const memoizedColumns = useMemo(() => columns, [columns]);
+  const memoizedData = useMemo(() => filteredData, [filteredData]);
 
   const {
     getTableProps,
@@ -64,7 +87,7 @@ const DataTable = <T extends object>({
     setPageSize: setReactTablePageSize,
   } = useTable<T>(
     {
-      columns: memoizedColumns,
+      columns: memoizedColumns as any,
       data: memoizedData,
       initialState: {
         pageIndex: 0,
@@ -104,24 +127,77 @@ const DataTable = <T extends object>({
             <TableRow {...headerGroup.getHeaderGroupProps()} key={i}>
               {headerGroup.headers.map((column, j) => {
                 const extendedColumn = column as ExtendedColumnInstance<T>;
+                const accessor = extendedColumn.id;
+                const disableFilter =
+                  (columns.find((col) => col.accessor === accessor) as any)
+                    ?.disableFilter ?? false;
+
                 return (
                   <TableHead
                     {...extendedColumn.getHeaderProps(
                       extendedColumn.getSortByToggleProps?.() || {}
                     )}
                     key={j}
-                    className="bg-primary/10"
+                    className={cn(
+                      "relative bg-primary/10 select-none",
+                      !disableFilter && "cursor-pointer"
+                    )}
+                    onClick={() => {
+                      if (!disableFilter) {
+                        setActiveFilterCol((prev) =>
+                          prev === accessor ? null : accessor
+                        );
+                      }
+                    }}
                   >
-                    {extendedColumn.render("Header")}
-                    <span>
+                    <div className="flex items-center justify-between">
+                      {extendedColumn.render("Header")}
                       {extendedColumn.isSorted ? (
                         extendedColumn.isSortedDesc ? (
-                          <ChevronDown className="inline ml-2 w-4 h-4" />
+                          <ChevronDown className="ml-2 w-4 h-4" />
                         ) : (
-                          <ChevronUp className="inline ml-2 w-4 h-4" />
+                          <ChevronUp className="ml-2 w-4 h-4" />
                         )
-                      ) : null}
-                    </span>
+                      ) : (
+                        !disableFilter && (
+                          <Search className="ml-2 w-3.5 h-3.5 opacity-60" />
+                        )
+                      )}
+                    </div>
+
+                    {activeFilterCol === accessor && !disableFilter && (
+                      <div className="absolute top-1 left-0 mt-1 w-full z-10 bg-white shadow-sm flex rounded-md items-center border px-2 mx-1">
+                        <input
+                          autoFocus
+                          type="text"
+                          placeholder="Search..."
+                          value={filters[accessor] || ""}
+                          onClick={(e) => e.stopPropagation()}
+                          onChange={(e) =>
+                            setFilters((prev) => ({
+                              ...prev,
+                              [accessor]: e.target.value,
+                            }))
+                          }
+                          className="w-full text-xs bg-transparent outline-none"
+                        />
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setFilters((prev) => ({
+                              ...prev,
+                              [accessor]: "",
+                            }));
+                            setActiveFilterCol(null);
+                          }}
+                          className="!h-8"
+                        >
+                          <X className="w-3.5 h-3.5 text-gray-400" />
+                        </Button>
+                      </div>
+                    )}
                   </TableHead>
                 );
               })}

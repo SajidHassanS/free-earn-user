@@ -34,6 +34,7 @@ const DuplicateEmails = () => {
           {
             Header: "Uploaded At",
             accessor: "createdAt",
+            disableFilter: true,
             Cell: ({ row }: any) =>
               format(
                 new Date(row.original.originalEmail.createdAt),
@@ -45,6 +46,7 @@ const DuplicateEmails = () => {
       {
         Header: "Original Details",
         id: "originalDetails",
+        disableFilter: true,
         columns: [
           {
             Header: "Original File",
@@ -57,6 +59,7 @@ const DuplicateEmails = () => {
           {
             Header: "Uploaded At",
             accessor: "originalEmail.createdAt",
+            disableFilter: true,
             Cell: ({ row }: any) =>
               format(
                 new Date(row.original.originalEmail.createdAt),

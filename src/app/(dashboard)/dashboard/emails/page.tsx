@@ -41,6 +41,7 @@ const Emails = () => {
       {
         Header: "Status",
         accessor: "status",
+        disableFilter: true,
         Cell: ({ row }: any) => (
           <Badge
             variant={
@@ -59,6 +60,7 @@ const Emails = () => {
       {
         Header: "Screenshot",
         accessor: "emailScreenshot",
+        disableFilter: true,
         Cell: ({ row }: any) => {
           const imageUrl = row.original.emailScreenshot;
           return (
@@ -78,6 +80,7 @@ const Emails = () => {
       {
         Header: "Uploaded At",
         accessor: "createdAt",
+        disableFilter: true,
         Cell: ({ row }: any) =>
           format(new Date(row.original.createdAt), "dd MMM yyyy, hh:mm a"),
       },
