@@ -10,16 +10,23 @@ import { Toaster } from "react-hot-toast";
 import { format } from "date-fns";
 import { SkeletonCard } from "@/components/Loaders/SkeletonLoader";
 import { useGetAllEmails } from "@/hooks/apis/useEmails";
-import { baseURL } from "@/api/auth";
 import UploadScreenshotModal from "@/components/Forms/forms-modal/emails/UploadScreenshot";
+import ImagePreviewModal from "@/components/Forms/forms-modal/emails/ImagePreviewModal";
 
 const Emails = () => {
   const { token } = useContextConsumer();
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState<boolean>(false);
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
   const [isUploadScreenshotModalOpen, setIsUploadScreenshotModalOpen] =
     useState<boolean>(false);
 
   const { data, isLoading } = useGetAllEmails(token);
   const emails = data?.data || [];
+
+  const openImageModal = (url: string) => {
+    setSelectedImageUrl(url);
+    setIsPreviewModalOpen(true);
+  };
 
   const emailColumns = useMemo(
     () => [
@@ -52,15 +59,21 @@ const Emails = () => {
       {
         Header: "Screenshot",
         accessor: "emailScreenshot",
-        Cell: ({ row }: any) => (
-          <div className="w-16 h-16">
-            <img
-              src={row.original.emailScreenshot}
-              alt="Email Screenshot"
-              className="object-cover w-full h-full rounded-md border border-gray-200 shadow-sm"
-            />
-          </div>
-        ),
+        Cell: ({ row }: any) => {
+          const imageUrl = row.original.emailScreenshot;
+          return (
+            <div
+              className="w-16 h-16 cursor-pointer"
+              onClick={() => openImageModal(imageUrl)}
+            >
+              <img
+                src={imageUrl}
+                alt="Email Screenshot"
+                className="object-cover w-full h-full rounded-md border border-gray-200 shadow-sm"
+              />
+            </div>
+          );
+        },
       },
       {
         Header: "Uploaded At",
@@ -104,6 +117,11 @@ const Emails = () => {
       <UploadScreenshotModal
         open={isUploadScreenshotModalOpen}
         onOpenChange={setIsUploadScreenshotModalOpen}
+      />
+      <ImagePreviewModal
+        open={isPreviewModalOpen}
+        onClose={() => setIsPreviewModalOpen(false)}
+        imageUrl={selectedImageUrl}
       />
     </>
   );

@@ -8,12 +8,14 @@ import {
 import { useContextConsumer } from "@/context/Context";
 import { useGetWithdrawalMethods } from "@/hooks/apis/useWithdrawalMethods";
 import { Button } from "@/components/ui/button";
+import toast from "react-hot-toast";
 import {
   useBonusWithdrawRequest,
   useWithdrawRequest,
 } from "@/hooks/apis/useWithdrawls";
 import { cn } from "@/lib/utils";
 import { Toaster } from "react-hot-toast";
+import { Copy } from "lucide-react";
 
 const DisplayMethodsModal: React.FC<{
   open: boolean;
@@ -28,6 +30,15 @@ const DisplayMethodsModal: React.FC<{
     useWithdrawRequest();
   const { mutate: bonusWithdrawRequest, isPending: bonusRequesting } =
     useBonusWithdrawRequest();
+
+  const handleCopy = async (value: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      toast.success("Copied to clipboard!");
+    } catch (err) {
+      toast.error("Failed to copy!");
+    }
+  };
 
   const handleRequest = () => {
     if (!selectedMethod) return;
@@ -80,11 +91,35 @@ const DisplayMethodsModal: React.FC<{
                   <div className="text-sm font-medium capitalize text-primary">
                     {method.methodType}
                   </div>
-                  <div className="text-sm text-muted-foreground">
-                    {method.accountNumber}
+                  <div className="text-sm text-muted-foreground flex items-center">
+                    <span>{method.accountNumber}</span>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="ml-2"
+                      title="Copy Account No"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCopy(method.accountNumber);
+                      }}
+                    >
+                      <Copy className="w-4 h-4 text-muted-foreground" />
+                    </Button>
                   </div>
-                  <div className="text-sm text-muted-foreground">
-                    {method.accountTitle}
+                  <div className="text-sm text-muted-foreground flex items-center mt-1">
+                    <span>{method.accountTitle}</span>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="ml-2"
+                      title="Copy Account Title"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCopy(method.accountTitle);
+                      }}
+                    >
+                      <Copy className="w-4 h-4 text-muted-foreground" />
+                    </Button>
                   </div>
                 </div>
               ))}

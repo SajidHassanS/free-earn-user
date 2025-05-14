@@ -5,6 +5,8 @@ import { cookies } from "next/headers";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/layout/app-sidebar";
 import Header from "@/components/layout/header";
+import DashboardMarquee from "@/components/Marquee";
+import MobileBottomNav from "@/components/layout/MobileBottomNav";
 
 export const metadata = {
   title: "FreeEarn Dashboard",
@@ -17,6 +19,7 @@ const Layout: FC<{ children: ReactNode }> = async ({ children }) => {
   return (
     <ProtectedRoutes>
       <ContextProvider>
+        <DashboardMarquee />
         <SidebarProvider defaultOpen={defaultOpen}>
           <AppSidebar />
           <SidebarInset>
@@ -24,6 +27,7 @@ const Layout: FC<{ children: ReactNode }> = async ({ children }) => {
             <main>{children}</main>
           </SidebarInset>
         </SidebarProvider>
+        <MobileBottomNav />
       </ContextProvider>
     </ProtectedRoutes>
   );

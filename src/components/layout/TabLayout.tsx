@@ -2,7 +2,7 @@
 
 import SidebarNav from "@/components/ProfileSetting/sidebar-tab";
 import { Separator } from "@/components/ui/separator";
-import { User, Wrench, PanelTopOpen } from "lucide-react";
+import { User, Wrench, PanelTopOpen, ArrowDownNarrowWide } from "lucide-react";
 import { Toaster } from "react-hot-toast";
 
 export default function TabLayout({ children }: { children: React.ReactNode }) {
@@ -42,6 +42,11 @@ const sidebarNavItems = [
     title: "Withdrawal",
     icon: <PanelTopOpen size={18} />,
     href: "/dashboard/settings/withdrawal-methods",
+  },
+  {
+    title: "FAQ's",
+    icon: <ArrowDownNarrowWide size={18} />,
+    href: "/dashboard/settings/faqs",
   },
   {
     title: "Account",

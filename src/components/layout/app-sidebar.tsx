@@ -64,7 +64,7 @@ export default function AppSidebar() {
       <SidebarHeader>
         <Link
           href="/dashboard/overiew"
-          className="flex gap-2 py-2 text-sidebar-accent-foreground cursor-pointer"
+          className="flex gap-2 py-2 text-sidebar-accent-foreground cursor-pointer mt-10"
         >
           <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary/20 text-sidebar-primary-foreground">
             <Image
