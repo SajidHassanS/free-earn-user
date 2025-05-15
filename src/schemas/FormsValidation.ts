@@ -85,10 +85,15 @@ const addBulkPhoneSchema = z.object({
     .min(1, "At least one phone number is required"),
 });
 
+const insertEmails = z.object({
+  emails: z.string().nonempty({ message: "Please enter at least one email" }),
+});
+
 export {
   createAccountFormSchema,
   loginAccountFormSchema,
   profileFormSchema,
   passwordSchema,
   addBulkPhoneSchema,
+  insertEmails,
 };

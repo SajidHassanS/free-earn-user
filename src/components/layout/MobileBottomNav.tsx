@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Mail, PanelTopOpen, User } from "lucide-react";
+import { Home, Mail, MessageCircleMore, PanelTopOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -23,9 +23,9 @@ const bottomNavItems = [
     url: "/dashboard/withdrawls",
   },
   {
-    title: "Profile",
-    icon: User,
-    url: "/dashboard/settings",
+    title: "Chat",
+    icon: MessageCircleMore,
+    url: "/dashboard/chat",
   },
 ];
 
