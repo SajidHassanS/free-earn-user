@@ -1,5 +1,6 @@
-import React from "react";
-import { useMemo } from "react";
+"use client";
+
+import React, { useMemo, useState, useEffect } from "react";
 import {
   useTable,
   useSortBy,
@@ -16,7 +17,14 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/table";
-import { ChevronDown, ChevronUp, MoveLeft, MoveRight } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  MoveLeft,
+  MoveRight,
+  Search,
+  X,
+} from "lucide-react";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 
@@ -24,12 +32,15 @@ interface ExtendedColumnInstance<T extends object> extends ColumnInstance<T> {
   isSorted?: boolean;
   isSortedDesc?: boolean;
   getSortByToggleProps?: () => any;
+  disableFilter?: boolean;
 }
 
 interface DataTableProps<T extends object> {
   columns: Array<{
     Header: string;
-    accessor: keyof T;
+    accessor: keyof T | string;
+    disableFilter?: boolean;
+    Cell?: (props: any) => React.ReactNode;
   }>;
   data: T[];
   paginate?: boolean;
@@ -42,8 +53,26 @@ const DataTable = <T extends object>({
   paginate = false,
   extendWidth,
 }: DataTableProps<T>) => {
+  const [activeFilterCol, setActiveFilterCol] = useState<string | null>(null);
+  const [filters, setFilters] = useState<Record<string, string>>({});
+  const [rowsInput, setRowsInput] = useState<string>(
+    paginate ? "100" : data.length.toString()
+  );
+  const [pageSize, setPageSize] = useState<number>(parseInt(rowsInput));
+
+  const filteredData = useMemo(() => {
+    return data.filter((row) => {
+      return Object.entries(filters).every(([key, val]) =>
+        row[key as keyof T]
+          ?.toString()
+          .toLowerCase()
+          .includes(val.toLowerCase())
+      );
+    });
+  }, [data, filters]);
+
   const memoizedColumns = useMemo(() => columns, [columns]);
-  const memoizedData = useMemo(() => data, [data]);
+  const memoizedData = useMemo(() => filteredData, [filteredData]);
 
   const {
     getTableProps,
@@ -55,13 +84,14 @@ const DataTable = <T extends object>({
     canNextPage,
     nextPage,
     previousPage,
+    setPageSize: setReactTablePageSize,
   } = useTable<T>(
     {
-      columns: memoizedColumns,
+      columns: memoizedColumns as any,
       data: memoizedData,
       initialState: {
         pageIndex: 0,
-        pageSize: paginate ? 100 : data.length,
+        pageSize: pageSize,
       } as Partial<TableState<T>>,
     },
     useSortBy,
@@ -72,7 +102,19 @@ const DataTable = <T extends object>({
     canNextPage: boolean;
     nextPage: () => void;
     previousPage: () => void;
+    setPageSize: (size: number) => void;
   };
+
+  useEffect(() => {
+    const value = parseInt(rowsInput);
+    if (!isNaN(value) && value > 0 && value <= data.length) {
+      setPageSize(value);
+    }
+  }, [rowsInput, data.length]);
+
+  useEffect(() => {
+    setReactTablePageSize(pageSize);
+  }, [pageSize, setReactTablePageSize]);
 
   return (
     <>
@@ -81,33 +123,81 @@ const DataTable = <T extends object>({
         className={cn("w-full", extendWidth && "table-fixed")}
       >
         <TableHeader>
-          {headerGroups.map((headerGroup, ind) => (
-            <TableRow {...headerGroup.getHeaderGroupProps()} key={ind}>
-              {headerGroup.headers.map((column, ind) => {
+          {headerGroups.map((headerGroup, i) => (
+            <TableRow {...headerGroup.getHeaderGroupProps()} key={i}>
+              {headerGroup.headers.map((column, j) => {
                 const extendedColumn = column as ExtendedColumnInstance<T>;
+                const accessor = extendedColumn.id;
+                const disableFilter =
+                  (columns.find((col) => col.accessor === accessor) as any)
+                    ?.disableFilter ?? false;
 
                 return (
                   <TableHead
                     {...extendedColumn.getHeaderProps(
-                      extendedColumn.getSortByToggleProps
-                        ? extendedColumn.getSortByToggleProps()
-                        : {}
+                      extendedColumn.getSortByToggleProps?.() || {}
                     )}
-                    key={ind}
-                    className="bg-primary/10"
+                    key={j}
+                    className={cn(
+                      "relative bg-primary/10 select-none",
+                      !disableFilter && "cursor-pointer"
+                    )}
+                    onClick={() => {
+                      if (!disableFilter) {
+                        setActiveFilterCol((prev) =>
+                          prev === accessor ? null : accessor
+                        );
+                      }
+                    }}
                   >
-                    {extendedColumn.render("Header")}
-                    <span>
+                    <div className="flex items-center justify-between">
+                      {extendedColumn.render("Header")}
                       {extendedColumn.isSorted ? (
                         extendedColumn.isSortedDesc ? (
-                          <ChevronDown className="inline ml-2 w-4 h-4" />
+                          <ChevronDown className="ml-2 w-4 h-4" />
                         ) : (
-                          <ChevronUp className="inline ml-2 w-4 h-4" />
+                          <ChevronUp className="ml-2 w-4 h-4" />
                         )
                       ) : (
-                        ""
+                        !disableFilter && (
+                          <Search className="ml-2 w-3.5 h-3.5 opacity-60" />
+                        )
                       )}
-                    </span>
+                    </div>
+
+                    {activeFilterCol === accessor && !disableFilter && (
+                      <div className="absolute top-1 left-0 mt-1 w-full z-10 bg-white shadow-sm flex rounded-md items-center border px-2 mx-1">
+                        <input
+                          autoFocus
+                          type="text"
+                          placeholder="Search..."
+                          value={filters[accessor] || ""}
+                          onClick={(e) => e.stopPropagation()}
+                          onChange={(e) =>
+                            setFilters((prev) => ({
+                              ...prev,
+                              [accessor]: e.target.value,
+                            }))
+                          }
+                          className="w-full text-xs bg-transparent outline-none"
+                        />
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setFilters((prev) => ({
+                              ...prev,
+                              [accessor]: "",
+                            }));
+                            setActiveFilterCol(null);
+                          }}
+                          className="!h-8"
+                        >
+                          <X className="w-3.5 h-3.5 text-gray-400" />
+                        </Button>
+                      </div>
+                    )}
                   </TableHead>
                 );
               })}
@@ -115,16 +205,12 @@ const DataTable = <T extends object>({
           ))}
         </TableHeader>
         <TableBody {...getTableBodyProps()}>
-          {page.map((row: any, ind: number) => {
+          {page.map((row, i) => {
             prepareRow(row);
             return (
-              <TableRow {...row.getRowProps()} key={ind}>
-                {row.cells.map((cell: any) => (
-                  <TableCell
-                    {...cell.getCellProps()}
-                    key={ind}
-                    className="py-3"
-                  >
+              <TableRow {...row.getRowProps()} key={i}>
+                {row.cells.map((cell: any, j: number) => (
+                  <TableCell {...cell.getCellProps()} key={j} className="py-3">
                     {cell.render("Cell")}
                   </TableCell>
                 ))}
@@ -134,27 +220,44 @@ const DataTable = <T extends object>({
         </TableBody>
       </Table>
 
+      <div className="flex justify-start items-center my-4 px-4 text-sm text-muted-foreground">
+        <label htmlFor="rowsPerPage" className="mr-2">
+          Rows per page:
+        </label>
+        <input
+          id="rowsPerPage"
+          type="number"
+          min={1}
+          max={data.length}
+          value={rowsInput}
+          onChange={(e) => setRowsInput(e.target.value)}
+          className="border rounded-md px-2 py-1 w-20 text-sm"
+        />
+      </div>
+
       {paginate && (
-        <div className="pagination flex justify-between gap-10 mt-3 text-farmacieGrey">
-          <Button
-            variant="outline"
-            onClick={() => previousPage()}
-            disabled={!canPreviousPage}
-            className="border-none bg-transparent"
-          >
-            <MoveLeft className="inline mr-2 mb-1" />
-            {"Previous"}
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => nextPage()}
-            disabled={!canNextPage}
-            className="border-none bg-transparent"
-          >
-            {"Next "}
-            <MoveRight className="inline" />
-          </Button>
-        </div>
+        <>
+          <div className="pagination flex justify-between gap-10 mt-3 text-farmacieGrey">
+            <Button
+              variant="outline"
+              onClick={() => previousPage()}
+              disabled={!canPreviousPage}
+              className="border-none bg-transparent"
+            >
+              <MoveLeft className="inline mr-2 mb-1" />
+              {"Previous"}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => nextPage()}
+              disabled={!canNextPage}
+              className="border-none bg-transparent"
+            >
+              {"Next "}
+              <MoveRight className="inline" />
+            </Button>
+          </div>
+        </>
       )}
     </>
   );

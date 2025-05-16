@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { passwordSchema, profileFormSchema } from "@/schemas/FormsValidation";
 import { useContextConsumer } from "@/context/Context";
 import { useEffect, useReducer, useState } from "react";
+import toast, { Toaster } from "react-hot-toast";
 import {
   useGetUSerPhonesNo,
   useGetUSerProfile,
@@ -150,6 +151,7 @@ export default function UserProfileForm() {
     <APIResponseLoader className="h-60 w-full col-span-3" />
   ) : (
     <>
+      <Toaster />
       <div className="relative">
         <div className="flex justify-end mb-4">
           <Button
@@ -174,13 +176,23 @@ export default function UserProfileForm() {
         {!isLoading && (
           <div className="flex flex-col gap-2 mb-12">
             <div className="relative">
-              <Image
-                src={formattedImageSrc}
-                width={80}
-                height={80}
-                alt="Profile"
-                className="w-16 h-16 rounded-full object-cover border border-gray-300 shadow"
-              />
+              {profileImgValue &&
+              typeof profileImgValue === "string" &&
+              profileImgValue.startsWith("data:") ? (
+                <img
+                  src={profileImgValue}
+                  alt="Profile"
+                  className="w-16 h-16 rounded-full object-cover border border-gray-300 shadow"
+                />
+              ) : (
+                <Image
+                  src={formattedImageSrc}
+                  width={80}
+                  height={80}
+                  alt="Profile"
+                  className="w-16 h-16 rounded-full object-cover border border-gray-300 shadow"
+                />
+              )}
               {isEditable && (
                 <label className="absolute bottom-0 left-12 bg-primary p-1.5 rounded-full cursor-pointer">
                   <input
@@ -192,10 +204,15 @@ export default function UserProfileForm() {
                       if (file) {
                         const reader = new FileReader();
                         reader.onloadend = () => {
-                          profileForm.setValue(
-                            "profileImg",
-                            reader.result as string
-                          );
+                          const base64Image = reader.result as string;
+                          profileForm.setValue("profileImg", base64Image);
+                          updateUser({
+                            data: {
+                              ...profileForm.getValues(),
+                              profileImg: base64Image,
+                            },
+                            token,
+                          });
                         };
                         reader.readAsDataURL(file);
                       }

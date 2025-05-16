@@ -31,6 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { paymentMethods } from "@/constant/data";
+import Image from "next/image";
 
 const CreateWithdrawalMethodModal: React.FC<any> = ({ open, onOpenChange }) => {
   const { token } = useContextConsumer();
@@ -98,7 +99,16 @@ const CreateWithdrawalMethodModal: React.FC<any> = ({ open, onOpenChange }) => {
                             <SelectLabel>Select Method</SelectLabel>
                             {paymentMethods.map((type) => (
                               <SelectItem key={type.value} value={type.value}>
-                                {type.label}
+                                <div className="flex items-center gap-2">
+                                  <Image
+                                    width={100}
+                                    height={100}
+                                    src={type.icon}
+                                    alt={type.label}
+                                    className="w-7 h-7 rounded-sm object-contain"
+                                  />
+                                  <span>{type.label}</span>
+                                </div>
                               </SelectItem>
                             ))}
                           </SelectGroup>

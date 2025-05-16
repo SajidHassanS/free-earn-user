@@ -3,7 +3,6 @@
 import { useContextConsumer } from "@/context/Context";
 import { Toaster } from "react-hot-toast";
 import {
-  useBonusWithdrawRequest,
   useGetWithdrawlBonusHistory,
   useGetWithdrawlHistory,
   useGetWithdrawls,
@@ -47,10 +46,12 @@ const Withdrawals = () => {
     {
       Header: "Status",
       accessor: "status",
+      disableFilter: true,
     },
     {
       Header: "Method Type",
       accessor: "withdrawalMethod.methodType",
+      disableFilter: true,
     },
     {
       Header: "Account Number",
@@ -59,6 +60,7 @@ const Withdrawals = () => {
     {
       Header: "Requested At",
       accessor: "createdAt",
+      disableFilter: true,
       Cell: ({ row }: any) =>
         format(new Date(row.original.createdAt), "dd MMM yyyy, hh:mm a"),
     },
@@ -72,14 +74,17 @@ const Withdrawals = () => {
     {
       Header: "Bonus Type",
       accessor: "withdrawalType",
+      disableFilter: true,
     },
     {
       Header: "Status",
       accessor: "status",
+      disableFilter: true,
     },
     {
       Header: "Created At",
       accessor: "createdAt",
+      disableFilter: true,
       Cell: ({ row }: any) =>
         format(new Date(row.original.createdAt), "dd MMM yyyy, hh:mm a"),
     },
