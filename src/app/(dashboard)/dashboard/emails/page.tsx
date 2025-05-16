@@ -14,6 +14,26 @@ import UploadScreenshotModal from "@/components/Forms/forms-modal/emails/UploadS
 import ImagePreviewModal from "@/components/Forms/forms-modal/emails/ImagePreviewModal";
 import InsertEmailsModals from "@/components/Forms/forms-modal/emails/InsertBulkEmails";
 
+function groupEmailsByKey<T>(data: T[], key: keyof T): T[] {
+  const groupedMap = new Map<string, { item: T; count: number }>();
+
+  data?.forEach((item) => {
+    const keyVal = item[key];
+    const groupKey =
+      typeof keyVal === "string" ? keyVal : JSON.stringify(keyVal);
+    if (!groupedMap.has(groupKey)) {
+      groupedMap.set(groupKey, { item, count: 1 });
+    } else {
+      groupedMap.get(groupKey)!.count += 1;
+    }
+  });
+
+  return Array.from(groupedMap.values()).map((entry) => ({
+    ...entry.item,
+    groupCount: entry.count,
+  }));
+}
+
 const Emails = () => {
   const { token } = useContextConsumer();
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState<boolean>(false);
@@ -130,6 +150,7 @@ const Emails = () => {
             <DataTable
               columns={emailColumns}
               data={emails}
+              // data={groupEmailsByKey(emails, "emailScreenshot")}
               paginate={emails.length > 100}
             />
           </div>
