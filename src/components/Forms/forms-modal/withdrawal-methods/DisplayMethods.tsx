@@ -8,14 +8,12 @@ import {
 import { useContextConsumer } from "@/context/Context";
 import { useGetWithdrawalMethods } from "@/hooks/apis/useWithdrawalMethods";
 import { Button } from "@/components/ui/button";
-import toast from "react-hot-toast";
 import {
   useBonusWithdrawRequest,
   useWithdrawRequest,
 } from "@/hooks/apis/useWithdrawls";
 import { cn } from "@/lib/utils";
 import { Toaster } from "react-hot-toast";
-import { Copy } from "lucide-react";
 
 const DisplayMethodsModal: React.FC<{
   open: boolean;
@@ -31,21 +29,12 @@ const DisplayMethodsModal: React.FC<{
   const { mutate: bonusWithdrawRequest, isPending: bonusRequesting } =
     useBonusWithdrawRequest();
 
-  const handleCopy = async (value: string) => {
-    try {
-      await navigator.clipboard.writeText(value);
-      toast.success("Copied to clipboard!");
-    } catch (err) {
-      toast.error("Failed to copy!");
-    }
-  };
-
   const handleRequest = () => {
     if (!selectedMethod) return;
 
     if (withdrawType === "balance") {
       withdrawRequest(
-        { method: selectedMethod, token },
+        { methodUuid: selectedMethod, token },
         {
           onSuccess: (res) => {
             if (res?.success) onOpenChange(false);
@@ -54,7 +43,7 @@ const DisplayMethodsModal: React.FC<{
       );
     } else {
       bonusWithdrawRequest(
-        { token, bonusType: withdrawType, method: selectedMethod },
+        { token, bonusType: withdrawType, methodUuid: selectedMethod },
         {
           onSuccess: (res) => {
             if (res?.success) onOpenChange(false);
@@ -80,10 +69,10 @@ const DisplayMethodsModal: React.FC<{
               {withdrawalMethods.data.map((method: any) => (
                 <div
                   key={method.uuid}
-                  onClick={() => setSelectedMethod(method.methodType)}
+                  onClick={() => setSelectedMethod(method.uuid)}
                   className={cn(
                     "border rounded-lg p-4 cursor-pointer transition-all",
-                    selectedMethod === method.methodType
+                    selectedMethod === method.uuid
                       ? "border-primary bg-primary/10 shadow-sm"
                       : "border-gray-300 hover:border-primary/40"
                   )}
@@ -91,35 +80,11 @@ const DisplayMethodsModal: React.FC<{
                   <div className="text-sm font-medium capitalize text-primary">
                     {method.methodType}
                   </div>
-                  <div className="text-sm text-muted-foreground flex items-center">
+                  <div className="text-sm text-muted-foreground">
                     <span>{method.accountNumber}</span>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="ml-2"
-                      title="Copy Account No"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCopy(method.accountNumber);
-                      }}
-                    >
-                      <Copy className="w-4 h-4 text-muted-foreground" />
-                    </Button>
                   </div>
-                  <div className="text-sm text-muted-foreground flex items-center mt-1">
+                  <div className="text-sm text-muted-foreground">
                     <span>{method.accountTitle}</span>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="ml-2"
-                      title="Copy Account Title"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCopy(method.accountTitle);
-                      }}
-                    >
-                      <Copy className="w-4 h-4 text-muted-foreground" />
-                    </Button>
                   </div>
                 </div>
               ))}

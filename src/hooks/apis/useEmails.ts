@@ -60,11 +60,11 @@ export const useUploadEmailScreenshot = () => {
         toast.success(data.message);
         queryClient.invalidateQueries(["allEmails", variables.token] as any);
       } else {
-        toast.error(data?.message || "Upload failed.");
+        toast.error(data?.response?.data?.message);
       }
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.message || "Something went wrong.");
+      toast.error(error?.response?.data?.message);
     },
   });
 };

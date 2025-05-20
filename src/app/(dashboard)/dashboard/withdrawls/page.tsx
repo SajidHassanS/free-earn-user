@@ -117,6 +117,7 @@ const Withdrawals = () => {
                   setWithdrawType("balance");
                   setIsModalOpen(true);
                 }}
+                disabled={balance <= 0}
               >
                 Withdraw
               </Button>

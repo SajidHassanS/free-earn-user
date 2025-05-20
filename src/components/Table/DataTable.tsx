@@ -20,6 +20,7 @@ import {
 import {
   ChevronDown,
   ChevronUp,
+  Download,
   MoveLeft,
   MoveRight,
   Search,
@@ -116,8 +117,43 @@ const DataTable = <T extends object>({
     setReactTablePageSize(pageSize);
   }, [pageSize, setReactTablePageSize]);
 
+  const handleDownloadCSV = () => {
+    const csvRows = [];
+
+    const headers = columns.map((col) => col.Header);
+    csvRows.push(headers.join(","));
+
+    memoizedData.forEach((row) => {
+      const values = columns.map((col) => {
+        const accessor = col.accessor as keyof T;
+        const val = row[accessor];
+        return typeof val === "string" ? `"${val.replace(/"/g, '""')}"` : val;
+      });
+      csvRows.push(values.join(","));
+    });
+
+    const blob = new Blob([csvRows.join("\n")], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "table-data.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <>
+      <div className="flex justify-end">
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handleDownloadCSV}
+          className="rounded-none border-none underline"
+        >
+          <Download className="w-4 h-4 mr-2" />
+          Download CSV
+        </Button>
+      </div>
       <Table
         {...getTableProps()}
         className={cn("w-full", extendWidth && "table-fixed")}
