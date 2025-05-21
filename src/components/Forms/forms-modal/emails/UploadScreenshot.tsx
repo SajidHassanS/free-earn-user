@@ -101,13 +101,6 @@ const UploadScreenshotModal: React.FC<any> = ({ open, onOpenChange }) => {
               />
             </div>
 
-            <div className="mt-4">
-              <p className="text-sm font-medium text-muted-foreground mb-1">
-                Live Preview
-              </p>
-              <div className="img-preview w-full h-48 border rounded-md overflow-hidden" />
-            </div>
-
             <Button
               onClick={handleUpload}
               className="w-full flex items-center gap-2 mt-4"

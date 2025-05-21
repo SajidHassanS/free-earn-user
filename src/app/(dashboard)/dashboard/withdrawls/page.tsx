@@ -46,7 +46,6 @@ const Withdrawals = () => {
     {
       Header: "Status",
       accessor: "status",
-      disableFilter: true,
     },
     {
       Header: "Method Type",
@@ -79,7 +78,6 @@ const Withdrawals = () => {
     {
       Header: "Status",
       accessor: "status",
-      disableFilter: true,
     },
     {
       Header: "Created At",
@@ -93,7 +91,7 @@ const Withdrawals = () => {
   return (
     <>
       <Toaster />
-      <div className="space-y-6 p-10 rounded-2xl max-w-6xl mx-auto">
+      <div className="space-y-6 p-2 lg:p-10 rounded-2xl max-w-6xl mx-auto mb-8">
         <div className="flex flex-col lg:flex-row gap-6">
           <div className="flex-1 border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-6 space-y-4">
             <div className="flex items-center justify-between">
@@ -245,6 +243,7 @@ const Withdrawals = () => {
               columns={columns}
               data={history}
               paginate={history.length > 5}
+              from="withdrawls"
             />
           )}
         </div>
@@ -252,7 +251,6 @@ const Withdrawals = () => {
           <h3 className="text-lg font-semibold text-primary mb-4">
             Bonus Withdrawal History
           </h3>
-
           {bonusHistoryDataLoading ? (
             <SkeletonCard className="w-full h-32" />
           ) : bonusHistory.length <= 0 ? (
@@ -264,6 +262,7 @@ const Withdrawals = () => {
               columns={bonusColumns}
               data={bonusHistory}
               paginate={bonusHistory.length > 5}
+              from="withdrawls"
             />
           )}
         </div>

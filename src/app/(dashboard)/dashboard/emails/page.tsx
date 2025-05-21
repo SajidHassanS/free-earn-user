@@ -14,26 +14,6 @@ import UploadScreenshotModal from "@/components/Forms/forms-modal/emails/UploadS
 import ImagePreviewModal from "@/components/Forms/forms-modal/emails/ImagePreviewModal";
 import InsertEmailsModals from "@/components/Forms/forms-modal/emails/InsertBulkEmails";
 
-function groupEmailsByKey<T>(data: T[], key: keyof T): T[] {
-  const groupedMap = new Map<string, { item: T; count: number }>();
-
-  data?.forEach((item) => {
-    const keyVal = item[key];
-    const groupKey =
-      typeof keyVal === "string" ? keyVal : JSON.stringify(keyVal);
-    if (!groupedMap.has(groupKey)) {
-      groupedMap.set(groupKey, { item, count: 1 });
-    } else {
-      groupedMap.get(groupKey)!.count += 1;
-    }
-  });
-
-  return Array.from(groupedMap.values()).map((entry) => ({
-    ...entry.item,
-    groupCount: entry.count,
-  }));
-}
-
 const Emails = () => {
   const { token } = useContextConsumer();
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState<boolean>(false);
@@ -69,7 +49,6 @@ const Emails = () => {
       {
         Header: "Status",
         accessor: "status",
-        disableFilter: true,
         Cell: ({ row }: any) => (
           <Badge
             variant={
@@ -119,9 +98,11 @@ const Emails = () => {
   return (
     <>
       <Toaster />
-      <div className="space-y-4 p-10 rounded-2xl">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-primary">Available Emails</h2>
+      <div className="p-2 lg:p-10 space-y-4 rounded-2xl">
+        <div className="lg:flex-row items-center lg:justify-between">
+          <h2 className="text-xl lg:text-2xl font-bold text-primary">
+            Available Emails
+          </h2>
           <div className="flex gap-2">
             <Button
               className="text-xs"
