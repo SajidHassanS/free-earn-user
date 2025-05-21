@@ -55,11 +55,6 @@ const sidebarNavItems = [
     href: "/dashboard/settings/faqs",
   },
   {
-    title: "FAQ's",
-    icon: <ArrowDownNarrowWide size={18} />,
-    href: "/dashboard/settings/faqs",
-  },
-  {
     title: "Instructions",
     icon: <Wrench size={18} />,
     href: "/dashboard/settings/instruction",
