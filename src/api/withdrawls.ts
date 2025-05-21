@@ -57,11 +57,11 @@ export const getAllWithdrawlsBonusHistory = async (token: string) => {
   }
 };
 
-export const withdrawRequest = async (method: string, token: string) => {
+export const withdrawRequest = async (methodUuid: string, token: string) => {
   try {
     const res = await axios.post(
       `${baseURL}/withdrawal/request`,
-      { method },
+      { methodUuid },
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -77,12 +77,12 @@ export const withdrawRequest = async (method: string, token: string) => {
 export const bonusWithdrawRequest = async (
   token: string,
   bonusType: string,
-  method: string
+  methodUuid: string
 ) => {
   try {
     const res = await axios.post(
       `${baseURL}/withdrawal/bonus`,
-      { bonusType, method },
+      { bonusType, methodUuid },
       {
         headers: {
           Authorization: `Bearer ${token}`,

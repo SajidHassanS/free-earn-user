@@ -12,10 +12,13 @@ import { SkeletonCard } from "@/components/Loaders/SkeletonLoader";
 import { useGetAllEmails } from "@/hooks/apis/useEmails";
 import UploadScreenshotModal from "@/components/Forms/forms-modal/emails/UploadScreenshot";
 import ImagePreviewModal from "@/components/Forms/forms-modal/emails/ImagePreviewModal";
+import InsertEmailsModals from "@/components/Forms/forms-modal/emails/InsertBulkEmails";
 
 const Emails = () => {
   const { token } = useContextConsumer();
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState<boolean>(false);
+  const [isInsertEmailModalOpen, setIsInsertEmailModalOpen] =
+    useState<boolean>(false);
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
   const [isUploadScreenshotModalOpen, setIsUploadScreenshotModalOpen] =
     useState<boolean>(false);
@@ -39,9 +42,12 @@ const Emails = () => {
         accessor: "password",
       },
       {
+        Header: "Remarks",
+        accessor: "remarks",
+      },
+      {
         Header: "Status",
         accessor: "status",
-        disableFilter: true,
         Cell: ({ row }: any) => (
           <Badge
             variant={
@@ -91,17 +97,29 @@ const Emails = () => {
   return (
     <>
       <Toaster />
-      <div className="space-y-4 p-10 rounded-2xl">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-primary">Available Emails</h2>
-          <Button
-            className="text-xs"
-            size="sm"
-            onClick={() => setIsUploadScreenshotModalOpen(true)}
-          >
-            Upload Screenshot
-            <Plus className="h-4 w-4 ml-1 font-bold" />
-          </Button>
+      <div className="p-2 lg:p-10 space-y-4 rounded-2xl">
+        <div className="lg:flex-row items-center lg:justify-between">
+          <h2 className="text-xl lg:text-2xl font-bold text-primary">
+            Available Emails
+          </h2>
+          <div className="flex gap-2">
+            <Button
+              className="text-xs"
+              size="sm"
+              onClick={() => setIsInsertEmailModalOpen(true)}
+            >
+              Insert Emails
+              <Plus className="h-4 w-4 ml-1 font-bold" />
+            </Button>
+            <Button
+              className="text-xs"
+              size="sm"
+              onClick={() => setIsUploadScreenshotModalOpen(true)}
+            >
+              Upload Screenshot
+              <Plus className="h-4 w-4 ml-1 font-bold" />
+            </Button>
+          </div>
         </div>
         {isLoading ? (
           <SkeletonCard className="w-full h-80" />
@@ -112,6 +130,7 @@ const Emails = () => {
             <DataTable
               columns={emailColumns}
               data={emails}
+              // data={groupEmailsByKey(emails, "emailScreenshot")}
               paginate={emails.length > 100}
             />
           </div>
@@ -125,6 +144,10 @@ const Emails = () => {
         open={isPreviewModalOpen}
         onClose={() => setIsPreviewModalOpen(false)}
         imageUrl={selectedImageUrl}
+      />
+      <InsertEmailsModals
+        open={isInsertEmailModalOpen}
+        onOpenChange={setIsInsertEmailModalOpen}
       />
     </>
   );

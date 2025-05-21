@@ -4,25 +4,31 @@ import { useContextConsumer } from "@/context/Context";
 import {
   useGetWithdrawalMethods,
   useMarkWithdrawalMethod,
+  useUpdateWithdrawAccountTitle,
 } from "@/hooks/apis/useWithdrawalMethods";
 import React, { useState } from "react";
 import { SkeletonCard } from "@/components/Loaders/SkeletonLoader";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "react-hot-toast";
 import { format } from "date-fns";
-import { Banknote, CheckCircle, Plus } from "lucide-react";
+import { Banknote, Check, CheckCircle, Pencil, Plus } from "lucide-react";
 import CreateWithdrawalMethod from "@/components/Forms/forms-modal/withdrawal-methods/CreateWithdrawalMethod";
-import TabLayout from "@/components/layout/TabLayout";
 import { cn } from "@/lib/utils";
 
 const WithdrawalMethods = () => {
   const { token } = useContextConsumer();
   const [isAddWithdrawModalOpen, setIsAddWithdrawModalOpen] =
     useState<boolean>(false);
+  const [editingStates, setEditingStates] = useState<Record<string, boolean>>(
+    {}
+  );
+  const [titleInputs, setTitleInputs] = useState<Record<string, string>>({});
 
   const { data, isLoading } = useGetWithdrawalMethods(token);
   const { mutate: markWithdrawal, isPending: marking } =
     useMarkWithdrawalMethod();
+  const { mutate: updateAccountTitle, isPending: updating } =
+    useUpdateWithdrawAccountTitle();
 
   const methods = data?.data || [];
 
@@ -103,9 +109,71 @@ const WithdrawalMethods = () => {
                   )}
                 </div>
                 <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1 pl-1">
-                  <p>
-                    <span className="font-medium">Account Title:</span>{" "}
-                    {method.accountTitle}
+                  <p className="flex items-center gap-2">
+                    <span className="font-medium">Account Title:</span>
+                    {editingStates[method.uuid] ? (
+                      <>
+                        <input
+                          type="text"
+                          value={
+                            titleInputs[method.uuid] ?? method.accountTitle
+                          }
+                          onChange={(e) =>
+                            setTitleInputs((prev) => ({
+                              ...prev,
+                              [method.uuid]: e.target.value,
+                            }))
+                          }
+                          className="border rounded px-2 py-0.5 text-sm w-48 dark:bg-zinc-800 dark:text-white"
+                        />
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="text-green-600"
+                          onClick={() => {
+                            if (
+                              titleInputs[method.uuid] &&
+                              titleInputs[method.uuid] !== method.accountTitle
+                            ) {
+                              updateAccountTitle({
+                                data: {
+                                  uuid: method.uuid,
+                                  accountTitle: titleInputs[method.uuid],
+                                },
+                                token,
+                              });
+                            }
+                            setEditingStates((prev) => ({
+                              ...prev,
+                              [method.uuid]: false,
+                            }));
+                          }}
+                          disabled={updating}
+                        >
+                          <Check className="w-4 h-4" />
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <span>{method.accountTitle}</span>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => {
+                            setEditingStates((prev) => ({
+                              ...prev,
+                              [method.uuid]: true,
+                            }));
+                            setTitleInputs((prev) => ({
+                              ...prev,
+                              [method.uuid]: method.accountTitle,
+                            }));
+                          }}
+                        >
+                          <Pencil className="w-4 h-4 text-muted-foreground" />
+                        </Button>
+                      </>
+                    )}
                   </p>
                   <p>
                     <span className="font-medium">Account Number:</span>{" "}
@@ -131,7 +199,6 @@ const WithdrawalMethods = () => {
         open={isAddWithdrawModalOpen}
         onOpenChange={setIsAddWithdrawModalOpen}
       />
-      {/* </TabLayout> */}
     </>
   );
 };

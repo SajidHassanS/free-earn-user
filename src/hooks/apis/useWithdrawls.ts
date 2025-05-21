@@ -93,10 +93,18 @@ export const useGetWithdrawlBonusHistory = (token: string) => {
 export const useWithdrawRequest = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ method, token }: { method: string; token: string }) =>
-      withdrawRequest(method, token),
+    mutationFn: ({
+      methodUuid,
+      token,
+    }: {
+      methodUuid: string;
+      token: string;
+    }) => withdrawRequest(methodUuid, token),
 
-    onSuccess: (data: any, variables: { method: string; token: string }) => {
+    onSuccess: (
+      data: any,
+      variables: { methodUuid: string; token: string }
+    ) => {
       if (data?.success) {
         toast.success(data.message);
         queryClient.invalidateQueries(["withdrawals", variables.token] as any);
@@ -116,15 +124,15 @@ export const useBonusWithdrawRequest = () => {
     mutationFn: ({
       token,
       bonusType,
-      method,
+      methodUuid,
     }: {
       token: string;
       bonusType: string;
-      method: string;
-    }) => bonusWithdrawRequest(token, bonusType, method),
+      methodUuid: string;
+    }) => bonusWithdrawRequest(token, bonusType, methodUuid),
     onSuccess: (
       data: any,
-      variables: { token: string; bonusType: string; method: string }
+      variables: { token: string; bonusType: string; methodUuid: string }
     ) => {
       if (data?.success) {
         toast.success(data.message);

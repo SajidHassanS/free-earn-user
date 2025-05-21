@@ -28,6 +28,23 @@ export const createWithdrawalMethod = async (data: any, token: string) => {
   }
 };
 
+export const updateWithdrawAccountTitle = async (data: any, token: string) => {
+  try {
+    const res = await axios.patch(
+      `${baseURL}/withdrawal-method?uuid=${data.uuid}`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const markWithdrawalMethod = async (data: any, token: string) => {
   try {
     const res = await axios.patch(

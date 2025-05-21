@@ -42,3 +42,16 @@ export const uploadEmailScreenshot = async (data: FormData, token: string) => {
     return error;
   }
 };
+
+export const insertEmails = async (data: any, token: any) => {
+  try {
+    const res = await axios.post(`${baseURL}/email/bulk-insert`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res.data;
+  } catch (error) {
+    return error;
+  }
+};
