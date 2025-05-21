@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { useInsertEmails } from "@/hooks/apis/useEmails";
 import { useContextConsumer } from "@/context/Context";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 
 const InsertEmailsModals: React.FC<any> = ({ open, onOpenChange }) => {
   const { token } = useContextConsumer();
@@ -30,6 +31,7 @@ const InsertEmailsModals: React.FC<any> = ({ open, onOpenChange }) => {
     resolver: zodResolver(insertEmails),
     defaultValues: {
       emails: "",
+      remarks: "",
     },
   });
 
@@ -62,7 +64,7 @@ const InsertEmailsModals: React.FC<any> = ({ open, onOpenChange }) => {
         </DialogHeader>
         <Form {...form}>
           <form className="2" onSubmit={form.handleSubmit(onSubmit)}>
-            <LabelInputContainer className="mb-1">
+            <LabelInputContainer className="mb-4">
               <Label htmlFor="emails" className="dark:text-farmacieGrey">
                 Enter Emails
               </Label>
@@ -77,6 +79,28 @@ const InsertEmailsModals: React.FC<any> = ({ open, onOpenChange }) => {
                         rows={5}
                         placeholder="Paste multiple emails here (comma or newline separated)"
                         className="w-full p-3 rounded-md border border-estateLightGray dark:bg-background dark:text-white outline-none focus:border-primary"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </LabelInputContainer>
+
+            <LabelInputContainer>
+              <Label htmlFor="remarks">Remarks</Label>
+              <FormField
+                control={form.control}
+                name="remarks"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter remarks"
+                        type="text"
+                        id="remarks"
+                        className="outline-none focus:border-primary"
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />

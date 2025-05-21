@@ -38,13 +38,12 @@ const Emails = () => {
         accessor: "email",
       },
       {
-        Header: "Name",
-        accessor: "name",
-        Cell: ({ value }: any) => value || "-",
-      },
-      {
         Header: "Password",
         accessor: "password",
+      },
+      {
+        Header: "Remarks",
+        accessor: "remarks",
       },
       {
         Header: "Status",

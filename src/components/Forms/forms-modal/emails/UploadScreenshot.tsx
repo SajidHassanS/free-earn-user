@@ -14,13 +14,18 @@ import { Button } from "@/components/ui/button";
 import { UploadCloud } from "lucide-react";
 import { useContextConsumer } from "@/context/Context";
 import { useUploadEmailScreenshot } from "@/hooks/apis/useEmails";
+import LabelInputContainer from "../../LabelInputContainer";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 const UploadScreenshotModal: React.FC<any> = ({ open, onOpenChange }) => {
   const { token } = useContextConsumer();
   const cropperRef = useRef<ReactCropperElement>(null);
-
+  const [remarks, setRemarks] = useState<string>("");
   const [image, setImage] = useState<string>("");
   const [cropData, setCropData] = useState<string>("");
+
+  //
   const { mutate: uploadScreenshot, isPending } = useUploadEmailScreenshot();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,6 +57,9 @@ const UploadScreenshotModal: React.FC<any> = ({ open, onOpenChange }) => {
     const blob = await (await fetch(base64)).blob();
     const formData = new FormData();
     formData.append("emailScreenshot", blob, "cropped.jpg");
+    if (remarks.trim()) {
+      formData.append("remarks", remarks.trim());
+    }
 
     uploadScreenshot(
       { data: formData, token },
@@ -59,6 +67,7 @@ const UploadScreenshotModal: React.FC<any> = ({ open, onOpenChange }) => {
         onSuccess: () => {
           setImage("");
           setCropData("");
+          setRemarks("");
           onOpenChange(false);
         },
       }
@@ -69,17 +78,34 @@ const UploadScreenshotModal: React.FC<any> = ({ open, onOpenChange }) => {
     if (!open) {
       setImage("");
       setCropData("");
+      setRemarks("");
     }
   }, [open]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[80vw] md:max-w-2xl h-auto overflow-y-auto scrollbar-custom">
+      <DialogContent
+        className={cn(
+          "max-w-[80vw] md:max-w-2xl h-[95vh] overflow-y-auto scrollbar-custom"
+        )}
+      >
         <DialogHeader>
           <DialogTitle className="text-primary text-xl font-bold">
             Upload & Crop Screenshot
           </DialogTitle>
         </DialogHeader>
+
+        <LabelInputContainer className="mt-4">
+          <Label htmlFor="remarks">Remarks</Label>
+          <Input
+            type="text"
+            id="remarks"
+            value={remarks}
+            onChange={(e) => setRemarks(e.target.value)}
+            placeholder="Enter remarks"
+            className="outline-none focus:border-primary"
+          />
+        </LabelInputContainer>
 
         <Input type="file" accept="image/*" onChange={handleFileChange} />
 
