@@ -62,9 +62,8 @@ export default function ChatBox() {
   }, [messagesHistory, adminMessages, selectedUserUuid]);
 
   return (
-    <div className="flex border rounded-lg h-[80vh] w-full max-w-6xl overflow-hidden shadow-sm">
-      {/* User List */}
-      <div className="w-1/4 border-r p-4 bg-zinc-50 dark:bg-zinc-800 overflow-y-auto">
+    <div className="flex flex-col lg:flex-row w-full h-[calc(100vh-100px)]  mx-auto border rounded-lg overflow-hidden bg-white dark:bg-zinc-900">
+      <div className="w-full lg:w-1/4 max-h-60 lg:max-h-full lg:h-full border-b lg:border-b-0 lg:border-r bg-zinc-50 dark:bg-zinc-800 overflow-y-auto p-4">
         <h2 className="text-lg font-semibold mb-4 text-primary">Admins</h2>
         {adminLoading ? (
           <SkeletonCard className="w-full h-10 mb-2" />
@@ -75,12 +74,12 @@ export default function ChatBox() {
                 key={admin.uuid}
                 onClick={() => handleAdminSelect(admin.uuid)}
                 className={cn(
-                  "cursor-pointer px-3 py-2 rounded-md hover:bg-primary/10 flex items-center justify-between",
+                  "cursor-pointer px-4 py-3 rounded-md hover:bg-primary/10 flex items-center justify-between",
                   selectedUserUuid === admin.uuid &&
                     "bg-primary text-white dark:text-white"
                 )}
               >
-                <span>{admin.username}</span>
+                <span className="truncate">{admin.username}</span>
                 {admin.unreadCount > 0 && selectedUserUuid !== admin.uuid && (
                   <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
                     {admin.unreadCount}
@@ -92,8 +91,9 @@ export default function ChatBox() {
         )}
       </div>
 
-      {/* Chat Window */}
-      <div className="flex-1 flex flex-col justify-between p-4 bg-white dark:bg-zinc-900">
+      {/* Chat Area */}
+      <div className="flex-1 flex flex-col justify-between p-4 h-full">
+        {/* Chat History */}
         <div className="flex-1 overflow-y-auto pr-2 space-y-2">
           {historyLoading ? (
             <SkeletonCard className="w-full h-40" />
@@ -103,7 +103,7 @@ export default function ChatBox() {
                 <div
                   key={msg.uuid || idx}
                   className={cn(
-                    "max-w-[80%] p-3 rounded-xl text-sm break-words",
+                    "max-w-[80%] md:max-w-[70%] p-3 rounded-xl text-sm break-words",
                     msg.senderUsername === "User"
                       ? "ml-auto bg-blue-500 text-white"
                       : "mr-auto bg-gray-200 text-gray-900"
@@ -116,7 +116,7 @@ export default function ChatBox() {
                 <div
                   key={`socket-msg-${idx}`}
                   className={cn(
-                    "max-w-[80%] p-3 rounded-xl text-sm break-words",
+                    "max-w-[80%] md:max-w-[70%] p-3 rounded-xl text-sm break-words",
                     msg.senderType === "user"
                       ? "ml-auto bg-blue-500 text-white"
                       : "mr-auto bg-gray-200 text-gray-900"
@@ -132,7 +132,7 @@ export default function ChatBox() {
 
         <form
           onSubmit={handleSubmit}
-          className="flex items-center gap-2 mt-4 border-t pt-4"
+          className="flex items-stretch sm:items-center gap-2 mt-4 border-t pt-4 mb-4"
         >
           <input
             type="text"
@@ -143,9 +143,9 @@ export default function ChatBox() {
           />
           <button
             type="submit"
-            className="bg-primary text-white p-3 rounded-full hover:bg-primary/90 flex items-center justify-center"
+            className="bg-primary text-white px-4 py-3 rounded-lg hover:bg-primary/90 transition flex items-center justify-center"
           >
-            <SendHorizonal className="w-4 h-4" />
+            <SendHorizonal className="w-5 h-5" />
           </button>
         </form>
       </div>

@@ -25,6 +25,7 @@ export default function Instructions() {
 
   return (
     <TabLayout>
+      {instructions?.length <= 0 && <p>No Instructions Available</p>}
       <InstructionSection data={instructions} />
     </TabLayout>
   );

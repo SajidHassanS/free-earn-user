@@ -42,6 +42,10 @@ const Emails = () => {
         accessor: "password",
       },
       {
+        Header: "Recovery Email",
+        accessor: "recoveryEmail",
+      },
+      {
         Header: "Remarks",
         accessor: "remarks",
       },
@@ -98,11 +102,11 @@ const Emails = () => {
     <>
       <Toaster />
       <div className="p-2 lg:p-10 space-y-4 rounded-2xl">
-        <div className="lg:flex-row items-center lg:justify-between">
+        <div className="lg:flex justify-between">
           <h2 className="text-xl lg:text-2xl font-bold text-primary">
             Available Emails
           </h2>
-          <div className="flex gap-2">
+          <div className="flex gap-2 mt-2 lg:mt-0">
             <Button
               className="text-xs"
               size="sm"

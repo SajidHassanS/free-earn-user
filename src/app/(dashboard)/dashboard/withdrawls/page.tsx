@@ -247,7 +247,7 @@ const Withdrawals = () => {
             />
           )}
         </div>
-        <div className="border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-6">
+        <div className="border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-6 !mb-10">
           <h3 className="text-lg font-semibold text-primary mb-4">
             Bonus Withdrawal History
           </h3>

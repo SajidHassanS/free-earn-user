@@ -23,6 +23,7 @@ export default function FAQs() {
 
   return (
     <TabLayout>
+      {sortedFaqs?.length <= 0 && <p>No FAQ&apos;s Available</p>}
       <FaqSection data={sortedFaqs} />
     </TabLayout>
   );

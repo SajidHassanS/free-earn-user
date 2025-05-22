@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { UploadCloud } from "lucide-react";
+import { Loader2, UploadCloud } from "lucide-react";
 import { useContextConsumer } from "@/context/Context";
 import { useUploadEmailScreenshot } from "@/hooks/apis/useEmails";
 import LabelInputContainer from "../../LabelInputContainer";
@@ -86,7 +86,8 @@ const UploadScreenshotModal: React.FC<any> = ({ open, onOpenChange }) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className={cn(
-          "max-w-[80vw] md:max-w-2xl h-[95vh] overflow-y-auto scrollbar-custom"
+          "max-w-[80vw] md:max-w-2xl h-[85vh] overflow-y-auto scrollbar-custom",
+          !image && "h-[35vh]"
         )}
       >
         <DialogHeader>
@@ -95,18 +96,7 @@ const UploadScreenshotModal: React.FC<any> = ({ open, onOpenChange }) => {
           </DialogTitle>
         </DialogHeader>
 
-        <LabelInputContainer className="mt-4">
-          <Label htmlFor="remarks">Remarks</Label>
-          <Input
-            type="text"
-            id="remarks"
-            value={remarks}
-            onChange={(e) => setRemarks(e.target.value)}
-            placeholder="Enter remarks"
-            className="outline-none focus:border-primary"
-          />
-        </LabelInputContainer>
-
+        <Label>Select Image</Label>
         <Input type="file" accept="image/*" onChange={handleFileChange} />
 
         {image && (
@@ -123,20 +113,52 @@ const UploadScreenshotModal: React.FC<any> = ({ open, onOpenChange }) => {
                 checkOrientation={false}
                 viewMode={1}
                 preview=".img-preview"
+                width="100%"
                 ref={cropperRef}
+                autoCrop={true}
+                ready={() => {
+                  const cropper = cropperRef.current?.cropper;
+                  if (cropper) {
+                    const imageData = cropper.getImageData();
+                    const cropBoxWidth = imageData.width;
+                    const cropBoxHeight = cropBoxWidth / (4 / 3);
+                    cropper.setCropBoxData({
+                      left: 0,
+                      top: (imageData.height - cropBoxHeight) / 2,
+                      width: cropBoxWidth,
+                      height: cropBoxHeight,
+                    });
+                  }
+                }}
               />
             </div>
-
-            <Button
-              onClick={handleUpload}
-              className="w-full flex items-center gap-2 mt-4"
-              disabled={isPending}
-            >
-              <UploadCloud className="w-4 h-4" />
-              Upload Cropped Image
-            </Button>
           </>
         )}
+
+        <LabelInputContainer className="!pb-0">
+          <Label htmlFor="remarks">Remarks</Label>
+          <Input
+            type="text"
+            id="remarks"
+            value={remarks}
+            onChange={(e) => setRemarks(e.target.value)}
+            placeholder="Enter remarks"
+            className="outline-none focus:border-primary"
+          />
+        </LabelInputContainer>
+
+        <Button
+          onClick={handleUpload}
+          className="w-full flex items-center gap-2 mt-4"
+          disabled={isPending || !image}
+        >
+          {isPending ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <UploadCloud className="w-4 h-4" />
+          )}
+          {isPending ? "Uploading..." : "Upload Image"}
+        </Button>
       </DialogContent>
     </Dialog>
   );
