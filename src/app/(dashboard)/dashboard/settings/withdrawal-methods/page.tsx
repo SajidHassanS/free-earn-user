@@ -47,7 +47,7 @@ const WithdrawalMethods = () => {
     <>
       <Toaster />
       {/* <TabLayout> */}
-      <div className="space-y-6 p-10 rounded-2xl max-w-3xl mx-auto">
+      <div className="space-y-6 p-4 md:p-10 rounded-2xl max-w-3xl mx-auto">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold text-primary mb-4">
             Withdrawal Methods

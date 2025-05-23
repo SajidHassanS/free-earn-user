@@ -87,7 +87,7 @@ const addBulkPhoneSchema = z.object({
 
 const insertEmails = z.object({
   emails: z.string().nonempty({ message: "Please enter at least one email" }),
-  remarks: z.string().nonempty({ message: "Please enter remarks" }),
+  remarks: z.string().optional(),
 });
 
 export {

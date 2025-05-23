@@ -45,6 +45,8 @@ const CreateWithdrawalMethodModal: React.FC<any> = ({ open, onOpenChange }) => {
       accountNumber: "",
       accountTitle: "",
     },
+    mode: "onSubmit",
+    criteriaMode: "firstError",
   });
 
   const onSubmit = (values: any) => {
@@ -78,6 +80,7 @@ const CreateWithdrawalMethodModal: React.FC<any> = ({ open, onOpenChange }) => {
               <FormField
                 control={form.control}
                 name="methodType"
+                rules={{ required: "Method type is required" }}
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
@@ -123,6 +126,7 @@ const CreateWithdrawalMethodModal: React.FC<any> = ({ open, onOpenChange }) => {
             <FormField
               control={form.control}
               name="accountNumber"
+              rules={{ required: "Account number is required" }}
               render={({ field }) => (
                 <FormItem>
                   <Label>Account Number</Label>
@@ -136,6 +140,7 @@ const CreateWithdrawalMethodModal: React.FC<any> = ({ open, onOpenChange }) => {
             <FormField
               control={form.control}
               name="accountTitle"
+              rules={{ required: "Account title is required" }}
               render={({ field }) => (
                 <FormItem>
                   <Label>Account Title</Label>

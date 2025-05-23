@@ -44,10 +44,18 @@ const Emails = () => {
       {
         Header: "Recovery Email",
         accessor: "recoveryEmail",
+        Cell: ({ row }: any) => {
+          const recoveryEmail = row.original.recoveryEmail;
+          return recoveryEmail?.trim() ? recoveryEmail : "-";
+        },
       },
       {
         Header: "Remarks",
         accessor: "remarks",
+        Cell: ({ row }: any) => {
+          const recoveryEmail = row.original.recoveryEmail;
+          return recoveryEmail?.trim() ? recoveryEmail : "-";
+        },
       },
       {
         Header: "Status",
@@ -60,6 +68,8 @@ const Emails = () => {
             className={
               row.original.status === "pending"
                 ? "bg-yellow-100 text-yellow-700"
+                : row.original.status === "bad"
+                ? "bg-red-100 text-yellow-700"
                 : "bg-green-100 text-green-700"
             }
           >
