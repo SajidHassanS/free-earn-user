@@ -15,10 +15,13 @@ import DataTable from "@/components/Table/DataTable";
 import { format } from "date-fns";
 import { useState } from "react";
 import DisplayMethodsModal from "@/components/Forms/forms-modal/withdrawal-methods/DisplayMethods";
+import ImagePreviewModal from "@/components/Forms/forms-modal/emails/ImagePreviewModal";
 
 const Withdrawals = () => {
   const { token } = useContextConsumer();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState<boolean>(false);
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
   const [withdrawType, setWithdrawType] = useState<
     "balance" | "signup" | "referral"
   >("balance");
@@ -38,6 +41,11 @@ const Withdrawals = () => {
   const history = withdrawlHistory?.data || [];
   const bonusHistory = withdrawlBonusHistory?.data || [];
 
+  const openImageModal = (url: string) => {
+    setSelectedImageUrl(url);
+    setIsPreviewModalOpen(true);
+  };
+
   const columns = [
     {
       Header: "Amount",
@@ -55,6 +63,31 @@ const Withdrawals = () => {
     {
       Header: "Account Number",
       accessor: "withdrawalMethod.accountNumber",
+    },
+    {
+      Header: "Remarks",
+      accessor: "remarks",
+      Cell: ({ value }: any) => value || "-",
+    },
+    {
+      Header: "Screenshot",
+      accessor: "paymentScreenshot",
+      disableFilter: true,
+      Cell: ({ row }: any) => {
+        const imageUrl = row.original.paymentScreenshot;
+        return (
+          <div
+            className="w-16 h-16 cursor-pointer"
+            onClick={() => openImageModal(imageUrl)}
+          >
+            <img
+              src={imageUrl}
+              alt="Screenshot"
+              className="object-cover w-full h-full rounded-md border border-gray-200 shadow-sm"
+            />
+          </div>
+        );
+      },
     },
     {
       Header: "Requested At",
@@ -80,6 +113,31 @@ const Withdrawals = () => {
       accessor: "status",
     },
     {
+      Header: "Remarks",
+      accessor: "remarks",
+      Cell: ({ value }: any) => value || "-",
+    },
+    {
+      Header: "Screenshot",
+      accessor: "paymentScreenshot",
+      disableFilter: true,
+      Cell: ({ row }: any) => {
+        const imageUrl = row.original.paymentScreenshot;
+        return (
+          <div
+            className="w-16 h-16 cursor-pointer"
+            onClick={() => openImageModal(imageUrl)}
+          >
+            <img
+              src={imageUrl}
+              alt="Screenshot"
+              className="object-cover w-full h-full rounded-md border border-gray-200 shadow-sm"
+            />
+          </div>
+        );
+      },
+    },
+    {
       Header: "Created At",
       accessor: "createdAt",
       disableFilter: true,
@@ -87,6 +145,8 @@ const Withdrawals = () => {
         format(new Date(row.original.createdAt), "dd MMM yyyy, hh:mm a"),
     },
   ];
+
+  console.log(bonusHistory, "bonusHistory");
 
   return (
     <>
@@ -271,6 +331,11 @@ const Withdrawals = () => {
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
         withdrawType={withdrawType}
+      />
+      <ImagePreviewModal
+        open={isPreviewModalOpen}
+        onClose={() => setIsPreviewModalOpen(false)}
+        imageUrl={selectedImageUrl}
       />
     </>
   );

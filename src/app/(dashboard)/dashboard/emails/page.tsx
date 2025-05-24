@@ -53,8 +53,8 @@ const Emails = () => {
         Header: "Remarks",
         accessor: "remarks",
         Cell: ({ row }: any) => {
-          const recoveryEmail = row.original.recoveryEmail;
-          return recoveryEmail?.trim() ? recoveryEmail : "-";
+          const remarks = row.original.remarks;
+          return remarks?.trim() ? remarks : "-";
         },
       },
       {

@@ -37,7 +37,7 @@ const DuplicateEmails = () => {
             disableFilter: true,
             Cell: ({ row }: any) =>
               format(
-                new Date(row.original.originalEmail.createdAt),
+                new Date(row?.original?.createdAt),
                 "dd MMM yyyy, hh:mm a"
               ),
           },
@@ -61,16 +61,15 @@ const DuplicateEmails = () => {
             accessor: "originalEmail.createdAt",
             disableFilter: true,
             Cell: ({ row }: any) =>
-              format(
-                new Date(row.original.originalEmail.createdAt),
-                "dd MMM yyyy, hh:mm a"
-              ),
+              format(new Date(row.original.createdAt), "dd MMM yyyy, hh:mm a"),
           },
         ],
       },
     ],
     []
   );
+
+  console.log(duplicateEmails, "duplicateEmails");
 
   return (
     <>

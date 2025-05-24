@@ -109,6 +109,22 @@ export const navItems = [
     items: [],
   },
   {
+    title: "FAQ's",
+    url: "/dashboard/faqs",
+    icon: "faq",
+    isActive: false,
+    shortcut: ["fa", "fa"],
+    items: [],
+  },
+  {
+    title: "Instructions",
+    url: "/dashboard/instruction",
+    icon: "wrench",
+    isActive: false,
+    shortcut: ["ins", "ins"],
+    items: [],
+  },
+  {
     title: "Profile",
     url: "/dashboard/settings",
     icon: "user",

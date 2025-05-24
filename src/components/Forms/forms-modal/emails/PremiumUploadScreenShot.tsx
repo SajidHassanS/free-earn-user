@@ -13,20 +13,29 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2, UploadCloud } from "lucide-react";
 import { useContextConsumer } from "@/context/Context";
-import { useUploadEmailScreenshot } from "@/hooks/apis/useEmails";
+import { useUploadPremiumEmail } from "@/hooks/apis/useDashboard";
 import LabelInputContainer from "../../LabelInputContainer";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import toast from "react-hot-toast";
 
-const UploadScreenshotModal: React.FC<any> = ({ open, onOpenChange }) => {
+const PremiumUploadScreenshotModal: React.FC<{
+  open: boolean;
+  onOpenChange: (val: boolean) => void;
+  premiumData: {
+    username: string;
+    password: string;
+    email: string;
+  };
+  refetch: () => Promise<any>;
+}> = ({ open, onOpenChange, premiumData, refetch }) => {
   const { token } = useContextConsumer();
   const cropperRef = useRef<ReactCropperElement>(null);
-  const [remarks, setRemarks] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
   const [image, setImage] = useState<string>("");
   const [cropData, setCropData] = useState<string>("");
 
-  //
-  const { mutate: uploadScreenshot, isPending } = useUploadEmailScreenshot();
+  const { mutate: uploadPremiumEmail, isPending } = useUploadPremiumEmail();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -41,34 +50,43 @@ const UploadScreenshotModal: React.FC<any> = ({ open, onOpenChange }) => {
 
   const getCropData = () => {
     if (cropperRef.current?.cropper) {
-      const croppedBase64 = cropperRef.current.cropper
-        .getCroppedCanvas()
-        .toDataURL();
-      setCropData(croppedBase64);
-      return croppedBase64;
+      return cropperRef.current.cropper.getCroppedCanvas().toDataURL();
     }
     return null;
   };
 
   const handleUpload = async () => {
-    const base64 = getCropData();
-    if (!base64) return;
-
-    const blob = await (await fetch(base64)).blob();
-    const formData = new FormData();
-    formData.append("emailScreenshot", blob, "cropped.jpg");
-    if (remarks.trim()) {
-      formData.append("remarks", remarks.trim());
+    if (!premiumData || (!image && !email)) {
+      toast.error("Missing required data");
+      return;
     }
 
-    uploadScreenshot(
+    const base64 = getCropData();
+    const formData = new FormData();
+
+    formData.append("name", premiumData.username);
+    formData.append("password", premiumData.password);
+    formData.append("recoveryEmail", premiumData.email);
+
+    if (base64) {
+      const blob = await (await fetch(base64)).blob();
+      formData.append("emailScreenshot", blob, "cropped.jpg");
+    }
+
+    if (email.trim()) {
+      formData.append("email", email.trim());
+    }
+
+    uploadPremiumEmail(
       { data: formData, token },
       {
-        onSuccess: () => {
+        onSuccess: async () => {
+          toast.success("Uploaded successfully");
           setImage("");
           setCropData("");
-          setRemarks("");
+          setEmail("");
           onOpenChange(false);
+          await refetch();
         },
       }
     );
@@ -78,7 +96,7 @@ const UploadScreenshotModal: React.FC<any> = ({ open, onOpenChange }) => {
     if (!open) {
       setImage("");
       setCropData("");
-      setRemarks("");
+      setEmail("");
     }
   }, [open]);
 
@@ -100,46 +118,44 @@ const UploadScreenshotModal: React.FC<any> = ({ open, onOpenChange }) => {
         <Input type="file" accept="image/*" onChange={handleFileChange} />
 
         {image && (
-          <>
-            <div className="mt-4">
-              <Cropper
-                src={image}
-                style={{ height: 400, width: "100%" }}
-                guides={true}
-                background={false}
-                responsive={true}
-                autoCropArea={1}
-                checkOrientation={false}
-                viewMode={0}
-                preview=".img-preview"
-                width="100%"
-                ref={cropperRef}
-                autoCrop={true}
-                ready={() => {
-                  const cropper = cropperRef.current?.cropper;
-                  if (cropper) {
-                    const imageData = cropper.getImageData();
-                    cropper.setData({
-                      x: 0,
-                      y: 0,
-                      width: imageData.naturalWidth,
-                      height: imageData.naturalHeight,
-                    });
-                  }
-                }}
-              />
-            </div>
-          </>
+          <div className="mt-4">
+            <Cropper
+              src={image}
+              style={{ height: 400, width: "100%" }}
+              guides={true}
+              background={false}
+              responsive={true}
+              autoCropArea={1}
+              checkOrientation={false}
+              viewMode={0}
+              preview=".img-preview"
+              width="100%"
+              ref={cropperRef}
+              autoCrop={true}
+              ready={() => {
+                const cropper = cropperRef.current?.cropper;
+                if (cropper) {
+                  const imageData = cropper.getImageData();
+                  cropper.setData({
+                    x: 0,
+                    y: 0,
+                    width: imageData.naturalWidth,
+                    height: imageData.naturalHeight,
+                  });
+                }
+              }}
+            />
+          </div>
         )}
 
         <LabelInputContainer className="!pb-0">
-          <Label htmlFor="remarks">Remarks</Label>
+          <Label htmlFor="email">Email</Label>
           <Input
             type="text"
-            id="remarks"
-            value={remarks}
-            onChange={(e) => setRemarks(e.target.value)}
-            placeholder="Enter remarks"
+            id="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter email"
             className="outline-none focus:border-primary"
           />
         </LabelInputContainer>
@@ -147,18 +163,18 @@ const UploadScreenshotModal: React.FC<any> = ({ open, onOpenChange }) => {
         <Button
           onClick={handleUpload}
           className="w-full flex items-center gap-2 mt-4"
-          disabled={isPending || !image}
+          disabled={isPending || (!image && !email)}
         >
           {isPending ? (
             <Loader2 className="w-4 h-4 animate-spin" />
           ) : (
             <UploadCloud className="w-4 h-4" />
           )}
-          {isPending ? "Uploading..." : "Upload Image"}
+          {isPending ? "Uploading..." : "Upload"}
         </Button>
       </DialogContent>
     </Dialog>
   );
 };
 
-export default UploadScreenshotModal;
+export default PremiumUploadScreenshotModal;
